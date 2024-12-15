@@ -74,7 +74,7 @@ cInternet
 
 
 function Show-Menu {
-	$Host.UI.RawUI.WindowTitle = "Muchility 6.0"
+	$Host.UI.RawUI.WindowTitle = "Muchility - Main Menu"
 	$Host.UI.RawUI.BackgroundColor = "Black"
 	Clear-Host
 	Write-Host " +-------------------+" -ForegroundColor Blue
@@ -215,7 +215,7 @@ Function Tweaks {
 	
 	
 	Write-Host "Tweaks Are Finished!..."
-	Start-Sleep -Seconds 1
+	Start-Sleep -Seconds 3
 	
 	return
 	#Add new tweaks below here!!!
