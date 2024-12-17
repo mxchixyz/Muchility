@@ -48,7 +48,6 @@ Function cWuauservService {
 Function cInternet {
     $Host.UI.RawUI.WindowTitle = "Muchility - Checking Internet Connection"
     Clear-Host
-    Write-Host "Checking internet connection..." -ForegroundColor Cyan
 
     try {
         # Attempt to ping a reliable host (Google DNS)
@@ -57,11 +56,11 @@ Function cInternet {
             Write-Host "Connected To The Internet!" -ForegroundColor Green
 			Write-Host ""
 			Write-Host "Continuing.."
-            Start-Sleep -Seconds 3  # 3-second pause if connected
+            Start-Sleep -Seconds 1  # 1-second pause if connected
         } else {
             Write-Host "Failed To Connect To The Internet!" -ForegroundColor Red
             Write-Host "Internet is recommended for FULL FUNCTIONALITY." -ForegroundColor Yellow
-            Start-Sleep -Seconds 5  # 5-second pause if not connected
+            Start-Sleep -Seconds 3  # 3-second pause if not connected
         }
     } catch {
         Write-Host "Error: Unable to check internet connection." -ForegroundColor Red
@@ -74,7 +73,7 @@ cInternet
 
 
 function Show-Menu {
-	$Host.UI.RawUI.WindowTitle = "Muchility - Main Menu"
+	$Host.UI.RawUI.WindowTitle = "Muchility 6.2"
 	$Host.UI.RawUI.BackgroundColor = "Black"
 	Clear-Host
 	Write-Host " +-------------------+" -ForegroundColor Blue
@@ -181,44 +180,183 @@ Function Tweaks {
 	Enable-RestorePoints
 	Clear-Host
 	
-	$Host.UI.RawUI.WindowTitle = "Muchility - Create A Restore Point?"														# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	Create-RestorePoint
-	Start-Sleep -Seconds 2
-	
 	
     # Add all tweak commands here
 	
-	Tweaks-Muchi-Apps
-	Tweaks-Muchi-Power-Plan
-	Tweaks-PS1-Assoc
-	Tweaks-Take-Owner
-	Tweaks-Disable-UAC
-	Tweaks-Disable-Wifi-Sense
-	Tweaks-Disable-Win-Ads
-	Tweaks-DVR-Settings
-	Tweaks-Game-Mode
-	Tweaks-Misc-Tweaks
-	Tweaks-Original-Context-Menu
-	Tweaks-Performance-Tweaks
-	Tweaks-Annoyances
-	Tweaks-Sch-Tasks
-	Tweaks-Delete-OneDrive
-	Tweaks-KBM
-	Tweaks-Services
-	Tweaks-Debloat
-	
-	
-	$Host.UI.RawUI.WindowTitle = "Muchility - Cleaning Temp Folders"													# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-	Write-Host "Cleaning Temp Folders"
-	Clean-TempFolders
+$response = Read-Host "Would you like to run Performance Tweaks? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Performance-Tweaks
+} else {
+    Write-Output "Skipping..."
 	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to download Muchi Apps (Disables Extra Telemetry/Tracking) (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Muchi-Apps
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to apply Muchi power plan? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Muchi-Power-Plan
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to adjust PowerShell file associations? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-PS1-Assoc
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to add Take Ownership to context menu? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Take-Owner
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to enable Original Context Menu? (Windows 11 Only) (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Original-Context-Menu
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to configure Xbox Game DVR settings? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-DVR-Settings
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to enable Game Mode? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Game-Mode
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to disable User Account Control (UAC)? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Disable-UAC
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to disable Wi-Fi Sense? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Disable-Wifi-Sense
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to disable Windows built in ads? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Disable-Win-Ads
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to disable general Windows annoyances? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Annoyances
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to configure Scheduled Tasks? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Sch-Tasks
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to optimize Services? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Services
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to remove Bloatware? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Debloat
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to remove OneDrive? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Delete-OneDrive
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to run Keyboard & Mouse Tweaks? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-KBM
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to run extra tweaks? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Misc-Tweaks
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+
+$Host.UI.RawUI.WindowTitle = "Muchility - Cleaning Temp Folders"													# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Write-Host "Cleaning Temp Folders"
+Clean-TempFolders
+Start-Sleep -Seconds 1
 	
 	
-	Write-Host "Tweaks Are Finished!..."
-	Start-Sleep -Seconds 3
+Write-Host "Tweaks Are Finished!..."
+Start-Sleep -Seconds 3
 	
-	return
-	#Add new tweaks below here!!!
+return
+#Add new tweaks below here!!!
 	
 }
 
@@ -2449,3 +2587,9 @@ do {
         default { Break }
     }
 } while ($key -ne "0")
+
+
+
+
+
+
