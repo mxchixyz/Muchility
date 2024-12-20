@@ -4,10 +4,10 @@
 Function cWingetStatus {
     try {
         winget --version | Out-Null
-        Write-Host " Winget V2 (Windows Store > App Installer) 		Installed!" -ForegroundColor Green
+        Write-Host " 					Winget CLI" -ForegroundColor DarkGreen
     }
     catch {
-        Write-Host " Winget V2 (Windows Store > App Installer) 		Missing!" -ForegroundColor Red
+        Write-Host " 					Winget CLI" -ForegroundColor DarkGray
     }
 }
 
@@ -15,10 +15,10 @@ Function cWingetStatus {
 Function cChocoStatus {
     try {
         choco --version | Out-Null
-        Write-Host " Chocolatey (Winget Alternative) 			Installed!" -ForegroundColor Green
+        Write-Host " 				Chocolatey" -ForegroundColor DarkGreen
     }
     catch {
-        Write-Host " Chocolatey (Winget Alternative) 			Missing!" -ForegroundColor Red
+        Write-Host " 				Chocolatey" -ForegroundColor DarkGray
     }
 }
 
@@ -26,10 +26,10 @@ Function cChocoStatus {
 Function cBitsService {
     $BITS = Get-Service -Name BITS
     if ($BITS.StartType -eq 'Automatic') {
-        Write-Host " Background Updates					Enabled!" -ForegroundColor Green
+        Write-Host " Background Updates" -ForegroundColor DarkGreen -NoNewline
     }
     else {
-        Write-Host " Background Updates					Disabled!" -ForegroundColor Red
+        Write-Host " Background Updates" -ForegroundColor DarkGray -NoNewline
     }
 }
 
@@ -37,10 +37,10 @@ Function cBitsService {
 Function cWuauservService {
     $wuauserv = Get-Service -Name wuauserv
     if ($wuauserv.StartType -eq 'Automatic') {
-        Write-Host " Windows Update Service					Enabled!" -ForegroundColor Green
+        Write-Host " Windows Update Service" -ForegroundColor DarkGreen -NoNewline
     }
     else {
-        Write-Host " Windows Update Service					Disabled!" -ForegroundColor Red
+        Write-Host " Windows Update Service" -ForegroundColor DarkGray -NoNewline
     }
 }
 
@@ -71,94 +71,100 @@ Function cInternet {
 
 cInternet
 
+# Latest updates post here
+$MuchiLU = "Extra Bloatware Options"
 
-function Show-Menu {
-	$Host.UI.RawUI.WindowTitle = "Muchility 6.2"
+
+Function Show-Menu {
+	$Host.UI.RawUI.WindowTitle = "Muchility"
 	$Host.UI.RawUI.BackgroundColor = "Black"
 	Clear-Host
-	Write-Host " +-------------------+" -ForegroundColor Blue
-	Write-Host " |" -NoNewline -ForegroundColor Blue
-	Write-Host "Muchility Main Menu" -NoNewLine
-	Write-Host "|" -NoNewline -ForegroundColor Blue
-	Write-Host "					Created By Muchi" -ForegroundColor Magenta
-	Write-Host " +-------------------+" -ForegroundColor Blue
+	Write-Host " *********************" -ForegroundColor Blue -NoNewLine
+	Write-Host "					Created By Muchi " -ForegroundColor DarkMagenta
+	Write-Host " *" -ForegroundColor Blue -NoNewline
+	Write-Host "Muchility Main Menu" -NoNewLine -ForegroundColor Gray
+	Write-Host "*" -ForegroundColor Blue -NoNewline
+	Write-Host "					Latest Update > " -NoNewline
+	Write-Host $MuchiLU -ForegroundColor Green
+	Write-Host " *********************" -ForegroundColor Blue
+	Write-Host ""
+	
 	
     Write-Host " 1. " -NoNewline -ForegroundColor Blue
-	Write-Host "Run Tweaks" -NoNewline -ForegroundColor Cyan
+	Write-Host "Run Tweaks" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "						Performance, Debloat, QoL, Latency" -ForegroundColor Blue
 	
 	Write-Host " 2. " -NoNewline -ForegroundColor Blue
-	wRITE-hOST "BCD Tweaks" -NoNewline -ForegroundColor Cyan
+	wRITE-hOST "BCD Tweaks" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "						Enable Highest Mode + Boot Settings" -ForegroundColor Blue
 	
 	Write-Host " 3. " -NoNewline -ForegroundColor Blue
-	Write-Host "Install Choco" -NoNewline -ForegroundColor Cyan
-	Write-Host "					Install Choco & Dependencies" -ForegroundColor Blue
+	Write-Host "Install Choco" -NoNewline -ForegroundColor DarkCyan
+	Write-Host "					Install Chocolatey" -ForegroundColor Blue
 	
 	Write-Host " 4. " -NoNewline -ForegroundColor Blue
-	Write-Host "Install Winget" -NoNewline -ForegroundColor Cyan
+	Write-Host "Install Winget" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Install Winget & Dependencies" -ForegroundColor Blue
 	
 	Write-Host " 5. " -NoNewline -ForegroundColor Blue
-	Write-Host "Update Apps" -NoNewline -ForegroundColor Cyan
+	Write-Host "Update Apps" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "						Update All Available Apps" -ForegroundColor Blue
 	
     Write-Host " 6. " -NoNewline -ForegroundColor Blue
-	Write-Host "Install Browsers" -NoNewline -ForegroundColor Cyan
+	Write-Host "Install Browsers" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Brave, Chrome & Firefox" -ForegroundColor Blue
 	
 	Write-Host " 7. " -NoNewline -ForegroundColor Blue
-    Write-Host "Disable" -ForegroundColor Red -NoNewline
-	Write-Host " Windows Auto Update" -ForegroundColor Cyan
+    Write-Host "Disable" -ForegroundColor DarkGray -NoNewline
+	Write-Host " Windows Auto Update" -ForegroundColor DarkCyan
 	
 	Write-Host " 8. " -NoNewline -ForegroundColor Blue
-	Write-Host "Enable"  -ForegroundColor Green -NoNewline
-	Write-Host " Windows Auto Update" -ForegroundColor Cyan
+	Write-Host "Enable"  -ForegroundColor DarkGreen -NoNewline
+	Write-Host " Windows Auto Update" -ForegroundColor DarkCyan
 	
 	Write-Host " 9. " -NoNewline -ForegroundColor Blue
-	Write-Host "Restore Point" -NoNewline -ForegroundColor Yellow
+	Write-Host "Restore Point" -NoNewline -ForegroundColor Cyan #############
 	Write-Host "					Create A Restore Point" -ForegroundColor Blue
 	
 	Write-Host " T. " -NoNewLine -ForegroundColor Blue
-	Write-Host "Clear Temp Folders" -NoNewLine -ForegroundColor Cyan
+	Write-Host "Clear Temp Folders" -NoNewLine -ForegroundColor DarkCyan
 	Write-Host "					Free Up Space & Delete Temporary Folders" -ForegroundColor Blue
 	
 	Write-Host " U. " -NoNewline -ForegroundColor Blue
-	Write-Host "Uninstall Winget" -ForegroundColor Cyan
+	Write-Host "Uninstall Winget" -ForegroundColor DarkCyan
 	
 	Write-Host " C. " -NoNewline -ForegroundColor Blue
-	Write-Host "Uninstall Choco" -ForegroundColor Cyan
+	Write-Host "Uninstall Choco" -ForegroundColor DarkCyan
 	
 	Write-Host " A. " -NoNewline -ForegroundColor Blue
-	Write-Host "Activate Windows " -NoNewLine -ForegroundColor Cyan
+	Write-Host "Activate Windows " -NoNewLine -ForegroundColor DarkCyan
 	Write-Host "					HWID Activation" -ForegroundColor Blue
 	
 	Write-Host " D. " -NoNewline -ForegroundColor Blue
-	Write-Host "Update Drivers" -NoNewline -ForegroundColor Cyan
+	Write-Host "Update Drivers" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Download & Install Drivers via SDI" -ForegroundColor Blue
 	
 	Write-Host " S. " -NoNewline -ForegroundColor Blue
-	Write-Host "System Repair" -NoNewline -ForegroundColor Cyan
+	Write-Host "System Repair" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Check For Corrupted Files" -ForegroundColor Blue
 	
 	Write-Host " M. " -NoNewline -ForegroundColor Blue
-	Write-Host "Refresh Menu" -ForegroundColor Cyan
+	Write-Host "Refresh Menu" -ForegroundColor DarkCyan
 	
-    Write-Host " +-------------------------+" -ForegroundColor Blue
-	Write-Host " |" -NoNewline -ForegroundColor Blue
-    Write-Host "Windows Automatic Updates" -NoNewLine
-	Write-Host "|"-ForegroundColor Blue
-	Write-Host " +-------------------------+" -ForegroundColor Blue
-    cBitsService
-    cWuauservService
-
-
-    Write-Host " +--------------------------+" -ForegroundColor Blue
-	Write-Host " |" -NoNewline -ForegroundColor Blue
-    Write-Host "Windows Installer Services" -NoNewLine
-	Write-Host "|"-ForegroundColor Blue
-	Write-Host " +--------------------------+" -ForegroundColor Blue
+	Write-Host ""
+	
+    Write-Host " ***************************				****************************" -ForegroundColor Blue
+	Write-Host " *" -NoNewline -ForegroundColor Blue
+    Write-Host "Windows Automatic Updates" -NoNewLine -ForegroundColor Gray
+	Write-Host "*				*" -NoNewline -ForegroundColor Blue
+	Write-Host "Windows Installer Services" -NoNewline
+	Write-Host "*"-ForegroundColor Blue
+	Write-Host " ***************************				****************************" -ForegroundColor Blue
+	Write-Host ""
+    
+	cBitsService
 	cWingetStatus
+    cWuauservService
     cChocoStatus
 }
 
@@ -312,7 +318,9 @@ Clear-Host
 $response = Read-Host "Would you like to remove Bloatware? (Y/N)"
 Write-Host ""
 if ($response -eq "Y") {
-    Tweaks-Debloat
+	Tweaks-Debloat1
+	Tweaks-Debloat2
+	Tweaks-StartMenu
 } else {
     Write-Output "Skipping..."
 	Start-Sleep -Seconds 1
@@ -2101,7 +2109,7 @@ Function Tweaks-Services {
   Set-Service -Name 'wudfsvc' -StartupType Manual -ErrorAction Continue
 }
 
-Function Tweaks-Debloat {
+Function Tweaks-Debloat1 {
 		$Host.UI.RawUI.WindowTitle = "Muchility - Debloating"														# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 	Clear-Host
 	Write-Host "Debloating!"
@@ -2303,6 +2311,66 @@ Where-Object -FilterScript {
 	
 }
 
+Function Tweaks-Debloat2 {
+	$Host.UI.RawUI.WindowTitle = "Muchility - Debloating"
+	#SafeApps contains apps that shouldn't be removed, or just can't and cause errors
+	$SafeApps = "AAD.brokerplugin|accountscontrol|apprep.chxapp|assignedaccess|asynctext|bioenrollment|capturepicker|cloudexperience|contentdelivery|desktopappinstaller|ecapp|edge|extension|getstarted|immersivecontrolpanel|lockapp|net.native|oobenet|parentalcontrols|PPIProjection|search|sechealth|secureas|shellexperience|startmenuexperience|terminal|vclibs|xaml|XGpuEject"
+	If ($Xbox) {
+		$SafeApps = "$SafeApps|Xbox" 
+}
+	
+	If ($Allapps) {
+		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
+		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
+			ForEach ($RemovedApp in $RemoveApps) {
+				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
+				
+}			ForEach ($RemovedPrApp in $RemovePrApps) {
+				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
+				
+}
+}	Else {
+		$SafeApps = "$SafeApps|$GoodApps"
+		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
+		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
+			ForEach ($RemovedApp in $RemoveApps) {
+				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
+				
+}			ForEach ($RemovedPrApp in $RemovePrApps) {
+				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
+				
+}
+}
+} 
+
+Function Tweaks-StartMenu {
+	$Host.UI.RawUI.WindowTitle = "Muchility - Debloating"
+    If ($ClearStart) {
+		Write-Host "***Setting empty start menu for new profiles...***"
+#Don't edit this. Creates empty start menu if -ClearStart is used.
+        $StartLayoutStr = @"
+<LayoutModificationTemplate Version="1" xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification" xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout" xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout">
+  <LayoutOptions StartTileGroupCellWidth="6" />
+  <DefaultLayoutOverride>
+    <StartLayoutCollection>
+      <defaultlayout:StartLayout GroupCellWidth="6" xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout">
+      </defaultlayout:StartLayout>
+    </StartLayoutCollection>
+  </DefaultLayoutOverride>
+  </LayoutModificationTemplate>
+"@
+	    add-content $Env:TEMP\startlayout.xml $StartLayoutStr
+        import-startlayout -layoutpath $Env:TEMP\startlayout.xml -mountpath $Env:SYSTEMDRIVE\
+        remove-item $Env:TEMP\startlayout.xml
+}    Else {        
+		Write-Host "***Setting clean start menu for new profiles...***"
+#Custom start layout XML near the top of the script.
+
+        add-content $Env:TEMP\startlayout.xml $StartLayoutStr
+        import-startlayout -layoutpath $Env:TEMP\startlayout.xml -mountpath $Env:SYSTEMDRIVE\
+        remove-item $Env:TEMP\startlayout.xml
+}
+}
 
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
