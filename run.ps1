@@ -1,4 +1,8 @@
-#6.6
+#7.0
+
+
+
+
 
 # Below is 1st check functions
 
@@ -60,17 +64,15 @@ Function cInternet {
         return "Offline"  # Return "Offline" if there's an error
     }
 }
-
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 $cInternet = cInternet
 $color = if ($cInternet -eq "Online") { "Green" } else { "DarkGray" }
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-# Define file paths
-$bravePath = Join-Path $env:LOCALAPPDATA "BraveSoftware\Brave-Browser\Application\brave.exe"
+
 
 # Latest updates post here
-$MuchiLU = "New UI, Fixed User Online Check"
+$MuchiLU = "New UI, Tweaks Now Have 1-Click or Y/N"
+
 
 
 Function Show-Menu {
@@ -201,192 +203,23 @@ Function Create-RestorePoint {
 
 #1 //////////////////////////////////////////////////////////////////////////////
 Function Tweaks {
-
+	$Host.UI.RawUI.WindowTitle = "Muchility - Tweaks"
 	Clear-Host
-	Set-RestorePointFrequency
-	Enable-RestorePoints
-	Clear-Host
-	
-	
-    # Add all tweak commands here
-	
-$response = Read-Host "Would you like to run Performance Tweaks? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Performance-Tweaks
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to download Muchi Apps (Disables Extra Telemetry/Tracking) (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Muchi-Apps
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to apply Muchi power plan? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Muchi-Power-Plan
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to adjust PowerShell file associations? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-PS1-Assoc
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to add Take Ownership to context menu? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Take-Owner
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to enable Original Context Menu? (Windows 11 Only) (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Original-Context-Menu
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to configure Xbox Game DVR settings? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-DVR-Settings
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to enable Game Mode? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Game-Mode
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to disable User Account Control (UAC)? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Disable-UAC
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to disable Wi-Fi Sense? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Disable-Wifi-Sense
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to disable Windows built in ads? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Disable-Win-Ads
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to disable general Windows annoyances? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Annoyances
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to configure Scheduled Tasks? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Sch-Tasks
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to optimize Services? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Services
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to remove Bloatware? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-	Tweaks-Debloat1
-	Tweaks-Debloat2
-	Tweaks-StartMenu
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to remove OneDrive? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Delete-OneDrive
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to run Keyboard & Mouse Tweaks? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-KBM
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
-$response = Read-Host "Would you like to run extra tweaks? (Y/N)"
-Write-Host ""
-if ($response -eq "Y") {
-    Tweaks-Misc-Tweaks
-} else {
-    Write-Output "Skipping..."
-	Start-Sleep -Seconds 1
-}
-Clear-Host
+    $userChoice = Read-Host "Do you want to run tweaks with Y/N prompts? (Y/N)"
 
-$Host.UI.RawUI.WindowTitle = "Muchility - Cleaning Temp Folders"													# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-Write-Host "Cleaning Temp Folders"
-Clean-TempFolders
-Start-Sleep -Seconds 1
-	
-	
-Write-Host "Tweaks Are Finished!..."
-Start-Sleep -Seconds 3
-	
-return
-#Add new tweaks below here!!!
-	
+    switch ($userChoice.ToUpper()) {
+        'Y' {
+            Write-Output "Running Q-Tweaks..."
+            Q-Tweaks
+        }
+        'N' {
+            Write-Output "Running AIO-Tweaks..."
+            AIO-Tweaks
+        }
+        default {
+            Write-Output "Invalid input. Please enter 'Y' or 'N'."
+        }
+    }
 }
 
 #2 //////////////////////////////////////////////////////////////////////////////
@@ -2166,9 +1999,260 @@ Function Tweaks-StartMenu {
 }
 }
 
+
+
+
+
+Function AIO-Tweaks {
+	Host.UI.RawUI.WindowTitle = "Muchility - 0 Questions Tweaks"
+	Clear-Host
+    # Performance Tweaks
+    Tweaks-Performance-Tweaks
+
+    # Apply Muchi Power Plan
+    Tweaks-Muchi-Power-Plan
+
+    # Adjust PowerShell File Associations
+    Tweaks-PS1-Assoc
+
+    # Add Take Ownership to Context Menu
+    Tweaks-Take-Owner
+
+    # Enable Original Context Menu (Windows 11 Only)
+    Tweaks-Original-Context-Menu
+
+    # Configure Xbox Game DVR Settings
+    Tweaks-DVR-Settings
+
+    # Enable Game Mode
+    Tweaks-Game-Mode
+
+    # Disable User Account Control (UAC)
+    Tweaks-Disable-UAC
+
+    # Disable Wi-Fi Sense
+    Tweaks-Disable-Wifi-Sense
+
+    # Disable Windows Built-In Ads
+    Tweaks-Disable-Win-Ads
+
+    # Disable General Windows Annoyances
+    Tweaks-Annoyances
+
+    # Configure Scheduled Tasks
+    Tweaks-Sch-Tasks
+
+    # Optimize Services
+    Tweaks-Services
+
+    # Remove Bloatware
+    Tweaks-Debloat1
+    Tweaks-Debloat2
+    Tweaks-StartMenu
+
+    # Remove OneDrive
+    Tweaks-Delete-OneDrive
+
+    # Keyboard & Mouse Tweaks
+    Tweaks-KBM
+
+    # Extra Tweaks
+    Tweaks-Misc-Tweaks
+
+    # Clean Temp Folders
+    Clean-TempFolders
+}
+
+Function Q-Tweaks {
+
+	Clear-Host
+	Set-RestorePointFrequency
+	Enable-RestorePoints
+	Clear-Host
+	
+	
+    # Add all tweak commands here
+	
+$response = Read-Host "Would you like to run Performance Tweaks? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Performance-Tweaks
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to download Muchi Apps (Disables Extra Telemetry/Tracking) (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Muchi-Apps
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to apply Muchi power plan? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Muchi-Power-Plan
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to adjust PowerShell file associations? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-PS1-Assoc
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to add Take Ownership to context menu? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Take-Owner
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to enable Original Context Menu? (Windows 11 Only) (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Original-Context-Menu
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to configure Xbox Game DVR settings? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-DVR-Settings
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to enable Game Mode? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Game-Mode
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to disable User Account Control (UAC)? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Disable-UAC
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to disable Wi-Fi Sense? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Disable-Wifi-Sense
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to disable Windows built in ads? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Disable-Win-Ads
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to disable general Windows annoyances? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Annoyances
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to configure Scheduled Tasks? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Sch-Tasks
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to optimize Services? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Services
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to remove Bloatware? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+	Tweaks-Debloat1
+	Tweaks-Debloat2
+	Tweaks-StartMenu
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to remove OneDrive? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Delete-OneDrive
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to run Keyboard & Mouse Tweaks? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-KBM
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+$response = Read-Host "Would you like to run extra tweaks? (Y/N)"
+Write-Host ""
+if ($response -eq "Y") {
+    Tweaks-Misc-Tweaks
+} else {
+    Write-Output "Skipping..."
+	Start-Sleep -Seconds 1
+}
+Clear-Host
+
+$Host.UI.RawUI.WindowTitle = "Muchility - Cleaning Temp Folders"													# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Write-Host "Cleaning Temp Folders"
+Clean-TempFolders
+Start-Sleep -Seconds 1
+	
+	
+Write-Host "Tweaks Are Finished!..."
+Start-Sleep -Seconds 3
+	
+return
+#Add new tweaks below here!!!
+	
+}
+
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
 
 
 
@@ -2374,7 +2458,7 @@ Function Choco-Update-All {
     }
 }
 
-# Function to get the latest stable release from GitHub
+# Function to get the latest stable BRAVE release from GitHub
 Function Get-LatestStableRelease {
     $releasesApiUrl = "https://api.github.com/repos/brave/brave-browser/releases"
     $releases = Invoke-RestMethod -Uri $releasesApiUrl
@@ -2384,7 +2468,14 @@ Function Get-LatestStableRelease {
     $latestRelease = $stableReleases | Sort-Object { [version]$_.tag_name.TrimStart('v') } -Descending | Select-Object -First 1
     return $latestRelease
 }
+
+# Define file paths
+$bravePath = Join-Path $env:LOCALAPPDATA "BraveSoftware\Brave-Browser\Application\brave.exe"
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
 
 
 do {
@@ -2408,10 +2499,3 @@ do {
         default { Break }
     }
 } while ($key -ne "0")
-
-
-
-
-
-
-
