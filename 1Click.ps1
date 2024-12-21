@@ -1386,7 +1386,45 @@ Clear-Host
 BCD-Tweaks
 Clear-Host
 
+Write-Host "Configuring Windows Update for Security Updates Only..." -ForegroundColor Green
+
+# Define registry paths for Windows Update configurations
+$WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+$AURegistryPath = "$WURegistryPath\AU"
+
+# Ensure the registry keys exist
+if (-not (Test-Path $WURegistryPath)) {
+    New-Item -Path $WURegistryPath -Force | Out-Null
+}
+if (-not (Test-Path $AURegistryPath)) {
+    New-Item -Path $AURegistryPath -Force | Out-Null
+}
+
+# Disable automatic updates except for security updates
+Set-ItemProperty -Path $WURegistryPath -Name "DeferFeatureUpdates" -Value 1 -Force
+Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdates" -Value 1 -Force
+Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force # Set to Semi-Annual Channel (Targeted)
+Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdatesPeriodInDays" -Value 0 -Force
+
+# Configure AU settings for manual control
+Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 1 -Force
+Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force # Notify for download/install
+
+# Disable driver updates via Windows Update
+$DriverPolicyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
+if (-not (Test-Path $DriverPolicyPath)) {
+    New-Item -Path $DriverPolicyPath -Force | Out-Null
+}
+Set-ItemProperty -Path $DriverPolicyPath -Name "SearchOrderConfig" -Value 0 -Force
+
+# Optimize Update Settings for Security Updates Only
+Write-Host "Applying security-only updates settings..." -ForegroundColor Cyan
+Start-Process -FilePath "C:\Windows\System32\schtasks.exe" -ArgumentList "/Delete /TN \"\Microsoft\Windows\WindowsUpdate\Automatic App Update\" /F" -NoNewWindow -Wait
+
+Write-Host "Configuration complete. Restart your computer for full effect." -ForegroundColor Green
+
 Write-Host "All Tweaks Are Finished!"
 Write-Host ""
 Write-Host "Closing In 3....."
 Start-Sleep -Seconds 4
+Exit
