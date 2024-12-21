@@ -1,6 +1,6 @@
-#7.0
+#1.1
 
-
+$MuVer = "1.1"
 
 
 
@@ -21,10 +21,10 @@ Function cWingetStatus {
 Function cChocoStatus {
     try {
         choco --version | Out-Null
-        Write-Host " 				Chocolatey" -ForegroundColor DarkGreen
+        Write-Host " 					Chocolatey" -ForegroundColor DarkGreen
     }
     catch {
-        Write-Host " 				Chocolatey" -ForegroundColor DarkGray
+        Write-Host " 					Chocolatey" -ForegroundColor DarkGray
     }
 }
 
@@ -32,10 +32,10 @@ Function cChocoStatus {
 Function cBitsService {
     $BITS = Get-Service -Name BITS
     if ($BITS.StartType -eq 'Automatic') {
-        Write-Host " Background Updates" -ForegroundColor DarkGreen -NoNewline
+        Write-Host "Background Updates" -ForegroundColor DarkGreen -NoNewline
     }
     else {
-        Write-Host " Background Updates" -ForegroundColor DarkGray -NoNewline
+        Write-Host "Background Updates" -ForegroundColor DarkGray -NoNewline
     }
 }
 
@@ -43,10 +43,10 @@ Function cBitsService {
 Function cWuauservService {
     $wuauserv = Get-Service -Name wuauserv
     if ($wuauserv.StartType -eq 'Automatic') {
-        Write-Host " Windows Update Service" -ForegroundColor DarkGreen -NoNewline
+        Write-Host "Windows Update Service" -ForegroundColor DarkGreen -NoNewline
     }
     else {
-        Write-Host " Windows Update Service" -ForegroundColor DarkGray -NoNewline
+        Write-Host "Windows Update Service" -ForegroundColor DarkGray -NoNewline
     }
 }
 
@@ -71,77 +71,76 @@ $color = if ($cInternet -eq "Online") { "Green" } else { "DarkGray" }
 
 
 # Latest updates post here
-$MuchiLU = "New UI, Tweaks Now Have 1-Click or Y/N"
+$MuchiLU = "New UI, Tweaks Now Have Silent Mode"
 
 
 
 Function Show-Menu {
-	$Host.UI.RawUI.WindowTitle = "Muchility"
+	$Host.UI.RawUI.WindowTitle = "Muchility - Created By Muchi"
 	$Host.UI.RawUI.BackgroundColor = "Black"
 	Clear-Host
-	Write-Host " Muchility Main Menu" -ForegroundColor DarkRed -NoNewline
+	Write-Host "Welcome To Muchility" -ForegroundColor DarkRed -NoNewline
 	Write-Host "					Created By Muchi " -ForegroundColor DarkRed
-	Write-Host " Latest Update > " -NoNewline
+	Write-Host "Latest Update > " -NoNewline
 	Write-Host "					$MuchiLU"
 	Write-Host ""
 	
-	Write-Host " 0. " -NoNewline -ForegroundColor Blue
+	Write-Host "0. " -NoNewline 
 	Write-Host "Restore Point" -NoNewline -ForegroundColor Cyan #############
 	Write-Host "					Create A Restore Point" -ForegroundColor Cyan #############
 	
-    Write-Host " 1. " -NoNewline -ForegroundColor Blue
+    Write-Host "1. " -NoNewline 
 	Write-Host "Run Tweaks" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "						Improve Performance, Remove Bloatware, Decrease Latency" -ForegroundColor Blue
 	
-	Write-Host " 2. " -NoNewline -ForegroundColor Blue
+	Write-Host "2. " -NoNewline 
 	wRITE-hOST "BCD Tweaks" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "						Enable Highest Mode + Boot Settings" -ForegroundColor Blue
 	
-	Write-Host " 3. " -NoNewline -ForegroundColor Blue
+	Write-Host "3. " -NoNewline 
 	Write-Host "Install Choco" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Install Chocolatey" -ForegroundColor Blue
 	
-	Write-Host " 4. " -NoNewline -ForegroundColor Blue
+	Write-Host "4. " -NoNewline 
 	Write-Host "Update Apps" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "						Update All Available Apps" -ForegroundColor Blue
 	
-    Write-Host " 5. " -NoNewline -ForegroundColor Blue
+    Write-Host "5. " -NoNewline 
 	Write-Host "Install Brave" -ForegroundColor DarkCyan
 	
-	Write-Host " 6. " -NoNewline -ForegroundColor Blue
-    Write-Host "Disable" -ForegroundColor DarkGray -NoNewline
-	Write-Host " Windows Auto Update" -ForegroundColor DarkCyan
+	Write-Host "6. " -NoNewline 
+    Write-Host "Disable Windows Update" -ForegroundColor DarkCyan
 	
-	Write-Host " 7. " -NoNewline -ForegroundColor Blue
-	Write-Host "Enable"  -ForegroundColor DarkGreen -NoNewline
-	Write-Host " Windows Auto Update" -ForegroundColor DarkCyan
+	Write-Host "7. " -NoNewline 
+	Write-Host "Enable Windows Update" -ForegroundColor DarkCyan
 	
-	Write-Host " 8. " -NoNewline -ForegroundColor Blue
+	Write-Host "8. " -NoNewline 
 	Write-Host "Activate Windows " -NoNewLine -ForegroundColor DarkCyan
 	Write-Host "					HWID Activation" -ForegroundColor Blue
 	
-	Write-Host " 9. " -NoNewline -ForegroundColor Blue
+	Write-Host "9. " -NoNewline 
 	Write-Host "Update Drivers" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Download & Install Drivers via SDI" -ForegroundColor Blue
 	
-	Write-Host " T. " -NoNewLine -ForegroundColor Blue
+	Write-Host "T. " -NoNewLine 
 	Write-Host "Clear Temp Folders" -NoNewLine -ForegroundColor DarkCyan
 	Write-Host "					Free Up Space & Delete Temporary Folders" -ForegroundColor Blue
 	
-	Write-Host " C. " -NoNewline -ForegroundColor Blue
+	Write-Host "C. " -NoNewline 
 	Write-Host "Uninstall Choco" -ForegroundColor DarkCyan
 	
-	Write-Host " R. " -NoNewline -ForegroundColor Blue
+	Write-Host "R. " -NoNewline 
 	Write-Host "Repair System Files" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Check For Corrupted Files" -ForegroundColor Blue
 	
-	Write-Host " M. " -NoNewline -ForegroundColor Blue
-	Write-Host "Refresh Menu" -ForegroundColor DarkCyan
+	Write-Host "M. " -NoNewline 
+	Write-Host "Refresh Menu" -ForegroundColor DarkCyan -NoNewLine
+	Write-Host "						App Version $MuVer - " -NoNewLine
+	Write-Host "$cInternet" -ForegroundColor $color
 	
 	Write-Host ""
-    Write-Host " Windows Automatic Updates				" -NoNewLine -ForegroundColor DarkRed
-	Write-Host "Windows Installer Services" -NoNewline -ForegroundColor DarkRed
-	Write-Host ""
+    Write-Host "Windows Automatic Updates				" -NoNewLine -ForegroundColor DarkMagenta
+	Write-Host "Windows Installer Services" -NoNewline -ForegroundColor DarkMagenta
 	Write-Host ""
 	
 	cBitsService
@@ -149,7 +148,7 @@ Function Show-Menu {
     cWuauservService
     cChocoStatus
 	Write-Host ""
-	Write-Host " User is $cInternet" -ForegroundColor $color
+	
 }
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
