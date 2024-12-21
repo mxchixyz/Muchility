@@ -1,4 +1,4 @@
-#6.4
+#6.6
 
 # Below is 1st check functions
 
@@ -48,53 +48,48 @@ Function cWuauservService {
 
 # Function to check internet connection
 Function cInternet {
-    $Host.UI.RawUI.WindowTitle = "Muchility - Checking Internet Connection"
-    Clear-Host
-
     try {
         # Attempt to ping a reliable host (Google DNS)
         $pingResult = Test-Connection -ComputerName "8.8.8.8" -Count 1 -Quiet
         if ($pingResult) {
-            Write-Host "Connected To The Internet!" -ForegroundColor Green
-			Write-Host ""
-			Write-Host "Continuing.."
-            Start-Sleep -Seconds 1  # 1-second pause if connected
+            return "Online"
         } else {
-            Write-Host "Failed To Connect To The Internet!" -ForegroundColor Red
-            Write-Host "Internet is recommended for FULL FUNCTIONALITY." -ForegroundColor Yellow
-            Start-Sleep -Seconds 3  # 3-second pause if not connected
+            return "Offline"
         }
     } catch {
-        Write-Host "Error: Unable to check internet connection." -ForegroundColor Red
+        return "Offline"  # Return "Offline" if there's an error
     }
 }
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-cInternet
+$cInternet = cInternet
+$color = if ($cInternet -eq "Online") { "Green" } else { "DarkGray" }
+
+# Define file paths
+$bravePath = Join-Path $env:LOCALAPPDATA "BraveSoftware\Brave-Browser\Application\brave.exe"
 
 # Latest updates post here
-$MuchiLU = "Extra Bloatware Options"
+$MuchiLU = "New UI, Fixed User Online Check"
 
 
 Function Show-Menu {
 	$Host.UI.RawUI.WindowTitle = "Muchility"
 	$Host.UI.RawUI.BackgroundColor = "Black"
 	Clear-Host
-	Write-Host " *********************" -ForegroundColor Blue -NoNewLine
-	Write-Host "					Created By Muchi " -ForegroundColor DarkMagenta
-	Write-Host " *" -ForegroundColor Blue -NoNewline
-	Write-Host "Muchility Main Menu" -NoNewLine -ForegroundColor Gray
-	Write-Host "*" -ForegroundColor Blue -NoNewline
-	Write-Host "					Latest Update > " -NoNewline
-	Write-Host $MuchiLU -ForegroundColor Green
-	Write-Host " *********************" -ForegroundColor Blue
+	Write-Host " Muchility Main Menu" -ForegroundColor DarkRed -NoNewline
+	Write-Host "					Created By Muchi " -ForegroundColor DarkRed
+	Write-Host " Latest Update > " -NoNewline
+	Write-Host "					$MuchiLU"
 	Write-Host ""
 	
+	Write-Host " 0. " -NoNewline -ForegroundColor Blue
+	Write-Host "Restore Point" -NoNewline -ForegroundColor Cyan #############
+	Write-Host "					Create A Restore Point" -ForegroundColor Cyan #############
 	
     Write-Host " 1. " -NoNewline -ForegroundColor Blue
 	Write-Host "Run Tweaks" -NoNewline -ForegroundColor DarkCyan
-	Write-Host "						Performance, Debloat, QoL, Latency" -ForegroundColor Blue
+	Write-Host "						Improve Performance, Remove Bloatware, Decrease Latency" -ForegroundColor Blue
 	
 	Write-Host " 2. " -NoNewline -ForegroundColor Blue
 	wRITE-hOST "BCD Tweaks" -NoNewline -ForegroundColor DarkCyan
@@ -105,69 +100,54 @@ Function Show-Menu {
 	Write-Host "					Install Chocolatey" -ForegroundColor Blue
 	
 	Write-Host " 4. " -NoNewline -ForegroundColor Blue
-	Write-Host "Install Winget" -NoNewline -ForegroundColor DarkCyan
-	Write-Host "					Install Winget & Dependencies" -ForegroundColor Blue
-	
-	Write-Host " 5. " -NoNewline -ForegroundColor Blue
 	Write-Host "Update Apps" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "						Update All Available Apps" -ForegroundColor Blue
 	
-    Write-Host " 6. " -NoNewline -ForegroundColor Blue
-	Write-Host "Install Browsers" -NoNewline -ForegroundColor DarkCyan
-	Write-Host "					Brave, Chrome & Firefox" -ForegroundColor Blue
+    Write-Host " 5. " -NoNewline -ForegroundColor Blue
+	Write-Host "Install Brave" -ForegroundColor DarkCyan
 	
-	Write-Host " 7. " -NoNewline -ForegroundColor Blue
+	Write-Host " 6. " -NoNewline -ForegroundColor Blue
     Write-Host "Disable" -ForegroundColor DarkGray -NoNewline
 	Write-Host " Windows Auto Update" -ForegroundColor DarkCyan
 	
-	Write-Host " 8. " -NoNewline -ForegroundColor Blue
+	Write-Host " 7. " -NoNewline -ForegroundColor Blue
 	Write-Host "Enable"  -ForegroundColor DarkGreen -NoNewline
 	Write-Host " Windows Auto Update" -ForegroundColor DarkCyan
 	
+	Write-Host " 8. " -NoNewline -ForegroundColor Blue
+	Write-Host "Activate Windows " -NoNewLine -ForegroundColor DarkCyan
+	Write-Host "					HWID Activation" -ForegroundColor Blue
+	
 	Write-Host " 9. " -NoNewline -ForegroundColor Blue
-	Write-Host "Restore Point" -NoNewline -ForegroundColor Cyan #############
-	Write-Host "					Create A Restore Point" -ForegroundColor Blue
+	Write-Host "Update Drivers" -NoNewline -ForegroundColor DarkCyan
+	Write-Host "					Download & Install Drivers via SDI" -ForegroundColor Blue
 	
 	Write-Host " T. " -NoNewLine -ForegroundColor Blue
 	Write-Host "Clear Temp Folders" -NoNewLine -ForegroundColor DarkCyan
 	Write-Host "					Free Up Space & Delete Temporary Folders" -ForegroundColor Blue
 	
-	Write-Host " U. " -NoNewline -ForegroundColor Blue
-	Write-Host "Uninstall Winget" -ForegroundColor DarkCyan
-	
 	Write-Host " C. " -NoNewline -ForegroundColor Blue
 	Write-Host "Uninstall Choco" -ForegroundColor DarkCyan
 	
-	Write-Host " A. " -NoNewline -ForegroundColor Blue
-	Write-Host "Activate Windows " -NoNewLine -ForegroundColor DarkCyan
-	Write-Host "					HWID Activation" -ForegroundColor Blue
-	
-	Write-Host " D. " -NoNewline -ForegroundColor Blue
-	Write-Host "Update Drivers" -NoNewline -ForegroundColor DarkCyan
-	Write-Host "					Download & Install Drivers via SDI" -ForegroundColor Blue
-	
-	Write-Host " S. " -NoNewline -ForegroundColor Blue
-	Write-Host "System Repair" -NoNewline -ForegroundColor DarkCyan
+	Write-Host " R. " -NoNewline -ForegroundColor Blue
+	Write-Host "Repair System Files" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Check For Corrupted Files" -ForegroundColor Blue
 	
 	Write-Host " M. " -NoNewline -ForegroundColor Blue
 	Write-Host "Refresh Menu" -ForegroundColor DarkCyan
 	
 	Write-Host ""
-	
-    Write-Host " ***************************				****************************" -ForegroundColor Blue
-	Write-Host " *" -NoNewline -ForegroundColor Blue
-    Write-Host "Windows Automatic Updates" -NoNewLine -ForegroundColor Gray
-	Write-Host "*				*" -NoNewline -ForegroundColor Blue
-	Write-Host "Windows Installer Services" -NoNewline
-	Write-Host "*"-ForegroundColor Blue
-	Write-Host " ***************************				****************************" -ForegroundColor Blue
+    Write-Host " Windows Automatic Updates				" -NoNewLine -ForegroundColor DarkRed
+	Write-Host "Windows Installer Services" -NoNewline -ForegroundColor DarkRed
 	Write-Host ""
-    
+	Write-Host ""
+	
 	cBitsService
 	cWingetStatus
     cWuauservService
     cChocoStatus
+	Write-Host ""
+	Write-Host " User is $cInternet" -ForegroundColor $color
 }
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -176,9 +156,48 @@ Function Show-Menu {
 
 
 
+# Below are all functions 0-9 & T,C,R
 
+#0 //////////////////////////////////////////////////////////////////////////////
+Function Create-RestorePoint {
+    Write-Host "Create a restore point?" -NoNewLine
+	Write-Host "			Highly Recommended!" -ForegroundColor Yellow
+	Write-Host ""
+	
+	Write-Host "Y = " -NoNewLine
+	Write-Host "Yes" -ForegroundColor Green
+	
+	Write-Host "Or press any key to exit.." -ForegroundColor DarkRed
+	
+	
+	
+	Write-Host ""
+    $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
 
-# Below are all functions 1-9 & T,U,C,A,D,S,M.
+    if ($key -match '^[Yy]$') {
+        try {
+            Checkpoint-Computer -Description "Before Muchility" -RestorePointType "MODIFY_SETTINGS"
+			Start-Sleep -Seconds 1
+            Write-Host "Restore point 'Before Muchility' created successfully." -ForegroundColor Green
+            Start-Sleep -Seconds 1
+        } catch {
+			Start-Sleep -Seconds 1
+            Write-Host "Failed to create the restore point. Error: $($_.Exception.Message)" -ForegroundColor DarkRed
+            Start-Sleep -Seconds 1
+            Clear-Host
+            Show-Menu
+        }
+    } elseif ($key -match '^[Nn]$') {
+        Start-Sleep -Seconds 1
+        Clear-Host
+		Exit
+    } else {
+        Write-Host "Exiting.." -ForegroundColor DarkRed
+        Start-Sleep -Seconds 1
+        Clear-Host
+        Exit
+    }
+}
 
 #1 //////////////////////////////////////////////////////////////////////////////
 Function Tweaks {
@@ -414,182 +433,50 @@ Function Install-Choco {
 }
 
 #4 //////////////////////////////////////////////////////////////////////////////
-Function Get-Winget {
-	clear-host
-	$Host.UI.RawUI.WindowTitle = "Muchility - Installing Winget"
-	Get-WinUtilWingetPrerequisites
-	Get-WinUtilWingetLatest
-	Return
-}
-
-#5 //////////////////////////////////////////////////////////////////////////////
 Function Update-Apps {
     $Host.UI.RawUI.WindowTitle = "Muchility - Updating Apps"
     clear-host
 
     # Set the background color to black and text to white
     $Host.UI.RawUI.BackgroundColor = 'Black'
-    $Host.UI.RawUI.ForegroundColor = 'White'
-    clear-host  # Apply the color settings immediately
-
-    # Check if winget is installed and perform updates
-    if (Get-Command winget -ErrorAction SilentlyContinue) {
-        Write-Host "Winget is installed. Checking and Updating apps!"
-        # Update all installed packages with winget
-        winget upgrade --all --silent --accept-source-agreements --accept-package-agreements
-        Start-Sleep -Seconds 2
-    } else {
-        Write-Host "Winget is not installed."
-        Start-Sleep -Seconds 1
-    }
-
-    # Check if Chocolatey is installed and perform updates
-    if (Get-Command choco -ErrorAction SilentlyContinue) {
-        Write-Host "Chocolatey is installed. Checking and Updating apps!"
-        # Update all installed packages with Chocolatey
-        choco upgrade all -y
-        Start-Sleep -Seconds 2
-    } else {
-        Write-Host "Chocolatey is not installed."
-        Start-Sleep -Seconds 1
-    }
-
+    clear-host
+	
+	Choco-Update-All
 	VC-User-Choice
 }
 
-#6 //////////////////////////////////////////////////////////////////////////////
-Function Install-Browsers {
-	$Host.UI.RawUI.WindowTitle = "Muchility - Browser Selection/Installation"
-    clear-host
-    while ($true) {
-        Write-Host "" -BackgroundColor Black -NoNewline
-        Write-Host "Which browser would you like to install?            " -ForegroundColor Magenta
-        Write-Host "1 - Brave" -ForegroundColor Green
-        Write-Host "2 - Chrome" -ForegroundColor Blue
-        Write-Host "3 - Firefox" -ForegroundColor Yellow
-        Write-Host "X - Return to Main Menu" -ForegroundColor White
-        Write-Host ""
+#5 //////////////////////////////////////////////////////////////////////////////
+Function Install-Brave {
+    # Force close Brave if running
+    Get-Process -Name "brave" -ErrorAction SilentlyContinue | Stop-Process -Force
 
-        $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-        
-        # Check if winget is available
-        $wingetAvailable = Get-Command winget -ErrorAction SilentlyContinue
+    $latestRelease = Get-LatestStableRelease
+    if (-not $latestRelease) {
+        return
+    }
 
-        function Check-BrowserInstalled {
-            param (
-                [string]$processName
-            )
-            Get-Process -Name $processName -ErrorAction SilentlyContinue
+    $installerAsset = $latestRelease.assets | Where-Object { $_.name -eq "BraveBrowserStandaloneSilentSetup.exe" }
+    if ($installerAsset) {
+        $downloadUrl = $installerAsset.browser_download_url
+        $tempFolder = "C:\_temp"
+        if (-not (Test-Path -Path $tempFolder)) {
+            New-Item -ItemType Directory -Path $tempFolder | Out-Null
         }
 
-        function Install-Browser {
-            param (
-                [string]$browserName,
-                [string]$wingetID,
-                [string]$chocoID,
-                [string]$installMethod,
-                [bool]$forceInstall
-            )
+        $installerPath = Join-Path -Path $tempFolder -ChildPath "BraveBrowserInstaller.exe"
 
-            if ($installMethod -eq "w") {
-                Write-Host "Installing $browserName with winget..."
-                winget install --id $wingetID --force --silent --accept-package-agreements
-            } elseif ($installMethod -eq "c") {
-                Write-Host "Installing $browserName with choco..."
-                choco feature enable -n allowGlobalConfirmation
-                choco install $chocoID -y
-            } else {
-                Write-Host "Invalid option. Returning to menu."
-            }
+        # Download the installer
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $installerPath
 
-            Start-Sleep -Seconds 2
-        }
+        # Run the installer silently
+        Start-Process -FilePath $installerPath -ArgumentList "/silent" -Wait
 
-        switch ($key.Character) {
-            "1" {
-                clear-host
-                $installMethod = Read-Host "Do you want to use (W)inget or (C)hoco?"
-                $installMethod = $installMethod.Trim().ToLower()
-
-                if ($installMethod -eq "w" -or $installMethod -eq "c") {
-                    if (Check-BrowserInstalled -processName "brave") {
-                        Write-Host "Brave is already installed. Would you like to force reinstall? (Y/N)"
-                        $response = Read-Host
-                        if ($response -eq "Y") {
-                            Install-Browser -browserName "Brave" -wingetID "Brave.Brave" -chocoID "brave" -installMethod $installMethod -forceInstall $true
-                        } else {
-                            Write-Host "Skipping installation."
-                            Start-Sleep -Seconds 2
-                        }
-                    } else {
-                        Install-Browser -browserName "Brave" -wingetID "Brave.Brave" -chocoID "brave" -installMethod $installMethod -forceInstall $false
-                    }
-                } else {
-                    Write-Host "Invalid installation method. Returning to menu."
-                    Start-Sleep -Seconds 2
-                }
-                return
-            }
-            "2" {
-                clear-host
-                $installMethod = Read-Host "Do you want to use (W)inget or (C)hoco?"
-                $installMethod = $installMethod.Trim().ToLower()
-
-                if ($installMethod -eq "w" -or $installMethod -eq "c") {
-                    if (Check-BrowserInstalled -processName "chrome") {
-                        Write-Host "Chrome is already installed. Would you like to force reinstall? (Y/N)"
-                        $response = Read-Host
-                        if ($response -eq "Y") {
-                            Install-Browser -browserName "Chrome" -wingetID "Google.Chrome" -chocoID "googlechrome" -installMethod $installMethod -forceInstall $true
-                        } else {
-                            Write-Host "Skipping installation."
-                            Start-Sleep -Seconds 2
-                        }
-                    } else {
-                        Install-Browser -browserName "Chrome" -wingetID "Google.Chrome" -chocoID "googlechrome" -installMethod $installMethod -forceInstall $false
-                    }
-                } else {
-                    Write-Host "Invalid installation method. Returning to menu."
-                    Start-Sleep -Seconds 2
-                }
-                return
-            }
-            "3" {
-                clear-host
-                $installMethod = Read-Host "Do you want to use (W)inget or (C)hoco?"
-                $installMethod = $installMethod.Trim().ToLower()
-
-                if ($installMethod -eq "w" -or $installMethod -eq "c") {
-                    if (Check-BrowserInstalled -processName "firefox") {
-                        Write-Host "Firefox is already installed. Would you like to force reinstall? (Y/N)"
-                        $response = Read-Host
-                        if ($response -eq "Y") {
-                            Install-Browser -browserName "Firefox" -wingetID "Mozilla.Firefox" -chocoID "firefox" -installMethod $installMethod -forceInstall $true
-                        } else {
-                            Write-Host "Skipping installation."
-                            Start-Sleep -Seconds 2
-                        }
-                    } else {
-                        Install-Browser -browserName "Firefox" -wingetID "Mozilla.Firefox" -chocoID "firefox" -installMethod $installMethod -forceInstall $false
-                    }
-                } else {
-                    Write-Host "Invalid installation method. Returning to menu."
-                    Start-Sleep -Seconds 2
-                }
-                return
-            }
-            "X" {
-                Start-Sleep -Seconds 2
-                return
-            }
-            default {
-                Show-BrowserMenu
-            }
-        }
+        # Clean up
+        Remove-Item -Path $tempFolder -Recurse -Force
     }
 }
 
-#7 //////////////////////////////////////////////////////////////////////////////
+#6 //////////////////////////////////////////////////////////////////////////////
 Function Disable-WindowsUpdate {
     Clear-Host
 				Stop-Service -Name 'BITS' -ErrorAction Continue
@@ -599,7 +486,7 @@ Function Disable-WindowsUpdate {
     return  # Return to the menu
 }
 
-#8 //////////////////////////////////////////////////////////////////////////////
+#7 //////////////////////////////////////////////////////////////////////////////
 Function Enable-WindowsUpdate {
     Clear-Host
                 Set-Service -Name 'BITS' -StartupType Automatic -ErrorAction Continue
@@ -609,141 +496,7 @@ Function Enable-WindowsUpdate {
     return  # Return to the menu
 }
 
-#9 //////////////////////////////////////////////////////////////////////////////
-Function Create-RestorePoint {
-    Write-Host "Create a restore point?" -NoNewLine
-	Write-Host "			Highly Recommended!" -ForegroundColor Yellow
-	Write-Host ""
-	
-	Write-Host "Y = " -NoNewLine
-	Write-Host "Yes" -ForegroundColor Green
-	
-	Write-Host "Or press any key to exit.." -ForegroundColor DarkRed
-	
-	
-	
-	Write-Host ""
-    $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown").Character
-
-    if ($key -match '^[Yy]$') {
-        try {
-            Checkpoint-Computer -Description "Before Muchility" -RestorePointType "MODIFY_SETTINGS"
-			Start-Sleep -Seconds 1
-            Write-Host "Restore point 'Before Muchility' created successfully." -ForegroundColor Green
-            Start-Sleep -Seconds 1
-        } catch {
-			Start-Sleep -Seconds 1
-            Write-Host "Failed to create the restore point. Error: $($_.Exception.Message)" -ForegroundColor DarkRed
-            Start-Sleep -Seconds 1
-            Clear-Host
-            Show-Menu
-        }
-    } elseif ($key -match '^[Nn]$') {
-        Start-Sleep -Seconds 1
-        Clear-Host
-		Exit
-    } else {
-        Write-Host "Exiting.." -ForegroundColor DarkRed
-        Start-Sleep -Seconds 1
-        Clear-Host
-        Exit
-    }
-}
-
-#T //////////////////////////////////////////////////////////////////////////////
-Function Clean-TempFolders {
-    # Define the paths to the temp folders
-    $windowsTemp = "C:\Windows\Temp"
-    $appDataTemp = [System.Environment]::GetFolderPath('LocalApplicationData') + "\Temp"
-    $customTemp1 = "C:\_temp"
-
-    # Function to remove the folder itself, ignoring files
-    function Remove-TempFolder($path) {
-        if (Test-Path -Path $path) {
-            Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
-        }
-    }
-	clear-host
-    # Clean C:\Windows\Temp
-    Remove-TempFolder $windowsTemp
-	clear-host
-    # Clean %appdata%\Local\Temp
-    Remove-TempFolder $appDataTemp
-	clear-host
-    # Clean C:\_temp
-    Remove-TempFolder $customTemp1
-	clear-host
-}
-
-#U //////////////////////////////////////////////////////////////////////////////
-Function Remove-Winget {
-    $Host.UI.RawUI.WindowTitle = "Muchility - Removing Winget (Advanced)"
-    Clear-Host
-
-    Write-Host "Starting the removal process..." -ForegroundColor Cyan
-
-    # Function to remove matching packages by a keyword
-    function Remove-PackagesByKeyword {
-        param(
-            [string]$keyword
-        )
-
-        # Find all packages matching the keyword
-        $packages = Get-AppxPackage | Where-Object { $_.Name -like "*$keyword*" }
-
-        if ($packages) {
-            foreach ($package in $packages) {
-                $confirmation = Read-Host "Do you want to remove $($package.Name)? (Y/N)"
-                if ($confirmation -eq "Y" -or $confirmation -eq "y") {
-                    try {
-                        Remove-AppxPackage -Package $package.PackageFullName -ErrorAction Stop
-                        Write-Host "$($package.Name) removed successfully." -ForegroundColor Green
-                    } catch {
-                        Write-Host "Failed to remove $($package.Name). It might be in use or require elevated permissions." -ForegroundColor DarkRed
-                    }
-                } else {
-                    Write-Host "Skipped removal of $($package.Name)." -ForegroundColor Yellow
-                }
-            }
-        } else {
-            Write-Host "No packages found matching keyword: $keyword." -ForegroundColor Yellow
-        }
-    }
-
-    # Step 1: Remove packages containing 'Microsoft.VCLibs'
-    Remove-PackagesByKeyword -keyword "Microsoft.VCLibs"
-
-    # Step 2: Remove packages containing 'Microsoft.UI.Xaml'
-    Remove-PackagesByKeyword -keyword "Microsoft.UI.Xaml"
-
-    # Step 3: Remove Winget (Microsoft.DesktopAppInstaller)
-    Remove-PackagesByKeyword -keyword "Microsoft.DesktopAppInstaller"
-
-    Write-Host "Removal process completed!" -ForegroundColor Green
-    Start-Sleep -Seconds 3
-}
-
-#C //////////////////////////////////////////////////////////////////////////////
-Function Remove-Choco {
-	    # Delete existing Chocolatey directories if found
-    $chocoDir = "C:\ProgramData\chocolatey"
-    $chocoCacheDir = "C:\ProgramData\ChocolateyHttpCache"
-    
-    if (Test-Path -Path $chocoDir) {
-        Write-Host "Deleting existing Chocolatey directory..." -ForegroundColor Red
-        Remove-Item -Recurse -Force -Path $chocoDir
-        Write-Host "Chocolatey directory deleted." -ForegroundColor Green
-    }
-
-    if (Test-Path -Path $chocoCacheDir) {
-        Write-Host "Deleting Chocolatey HttpCache directory..." -ForegroundColor Red
-        Remove-Item -Recurse -Force -Path $chocoCacheDir
-        Write-Host "Chocolatey HttpCache directory deleted." -ForegroundColor Green
-    }
-
-}
-
-#A //////////////////////////////////////////////////////////////////////////////
+#8 //////////////////////////////////////////////////////////////////////////////
 Function Activate-Win {
     $Host.UI.RawUI.WindowTitle = "Muchility - Getting Activation Script"
     Clear-Host
@@ -788,7 +541,7 @@ Function Activate-Win {
     Return
 }
 
-#D //////////////////////////////////////////////////////////////////////////////
+#9 //////////////////////////////////////////////////////////////////////////////
 Function cUpdate-Drivers {
     $Host.UI.RawUI.WindowTitle = "Muchility - Updating Drivers"
     Clear-Host
@@ -874,7 +627,52 @@ Clear-Host
     }
 }
 
-#S //////////////////////////////////////////////////////////////////////////////
+#T //////////////////////////////////////////////////////////////////////////////
+Function Clean-TempFolders {
+    # Define the paths to the temp folders
+    $windowsTemp = "C:\Windows\Temp"
+    $appDataTemp = [System.Environment]::GetFolderPath('LocalApplicationData') + "\Temp"
+    $customTemp1 = "C:\_temp"
+
+    # Function to remove the folder itself, ignoring files
+    function Remove-TempFolder($path) {
+        if (Test-Path -Path $path) {
+            Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+	clear-host
+    # Clean C:\Windows\Temp
+    Remove-TempFolder $windowsTemp
+	clear-host
+    # Clean %appdata%\Local\Temp
+    Remove-TempFolder $appDataTemp
+	clear-host
+    # Clean C:\_temp
+    Remove-TempFolder $customTemp1
+	clear-host
+}
+
+#C //////////////////////////////////////////////////////////////////////////////
+Function Remove-Choco {
+	    # Delete existing Chocolatey directories if found
+    $chocoDir = "C:\ProgramData\chocolatey"
+    $chocoCacheDir = "C:\ProgramData\ChocolateyHttpCache"
+    
+    if (Test-Path -Path $chocoDir) {
+        Write-Host "Deleting existing Chocolatey directory..." -ForegroundColor Red
+        Remove-Item -Recurse -Force -Path $chocoDir
+        Write-Host "Chocolatey directory deleted." -ForegroundColor Green
+    }
+
+    if (Test-Path -Path $chocoCacheDir) {
+        Write-Host "Deleting Chocolatey HttpCache directory..." -ForegroundColor Red
+        Remove-Item -Recurse -Force -Path $chocoCacheDir
+        Write-Host "Chocolatey HttpCache directory deleted." -ForegroundColor Green
+    }
+
+}
+
+#R //////////////////////////////////////////////////////////////////////////////
 Function cSystem-Repairs {
 	$Host.UI.RawUI.WindowTitle = "Muchility - System Repairs"
     clear-host
@@ -894,12 +692,6 @@ Function cSystem-Repairs {
     Start-Process -FilePath "cmd.exe" -ArgumentList "/c chkdsk C: /F /R /X" -Wait -NoNewWindow
 
     Write-Host "System repair tasks completed. Please reboot if required." -ForegroundColor Green
-}
-
-#M //////////////////////////////////////////////////////////////////////////////
-Function Home {
-    clear-host
-    return
 }
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2374,71 +2166,6 @@ Function Tweaks-StartMenu {
 }
 }
 
-
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-
-
-# Below is ripped from CTT WinUtil +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-Function Get-WinUtilWingetLatest {
-    <#
-    .SYNOPSIS
-        Uses GitHub API to check for the latest release of Winget.
-    .DESCRIPTION
-        This function grabs the latest version of Winget and returns the download path to Install-WinUtilWinget for installation.
-    #>
-    # Invoke-WebRequest is notoriously slow when the byte progress is displayed. The following lines disable the progress bar and reset them at the end of the function
-    $PreviousProgressPreference = $ProgressPreference
-    $ProgressPreference = "silentlyContinue"
-    try {
-        # Grabs the latest release of Winget from the Github API for the install process.
-        $response = Invoke-RestMethod -Uri "https://api.github.com/repos/microsoft/Winget-cli/releases/latest" -Method Get -ErrorAction Stop
-        $latestVersion = $response.tag_name #Stores version number of latest release.
-        $licenseWingetUrl = $response.assets.browser_download_url | Where-Object {$_ -like "*License1.xml"} #Index value for License file.
-        Write-Host "Latest Version:`t$($latestVersion)`n"
-        Write-Host "Downloading..."
-        $assetUrl = $response.assets.browser_download_url | Where-Object {$_ -like "*Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"}
-        Invoke-WebRequest -Uri $licenseWingetUrl -OutFile $ENV:TEMP\License1.xml
-        # The only pain is that the msixbundle for winget-cli is 246MB. In some situations this can take a bit, with slower connections.
-        Invoke-WebRequest -Uri $assetUrl -OutFile $ENV:TEMP\Microsoft.DesktopAppInstaller.msixbundle
-    } catch {
-        Write-Host "Failed to get Winget!"
-    }
-    $ProgressPreference = $PreviousProgressPreference
-}
-
-Function Get-WinUtilWingetPrerequisites {
-    <#
-    .SYNOPSIS
-        Downloads the Winget Prereqs.
-    .DESCRIPTION
-        Downloads Prereqs for Winget. Version numbers are coded as variables and can be updated as uncommonly as Microsoft updates the prereqs.
-    #>
-
-    # I don't know of a way to detect the prereqs automatically, so if someone has a better way of defining these, that would be great.
-    # Microsoft.VCLibs version rarely changes, but for future compatibility I made it a variable.
-    $versionVCLibs = "14.00"
-    $fileVCLibs = "https://aka.ms/Microsoft.VCLibs.x64.${versionVCLibs}.Desktop.appx"
-    # Write-Host "$fileVCLibs"
-    # Microsoft.UI.Xaml version changed recently, so I made the version numbers variables.
-    $versionUIXamlMinor = "2.8"
-    $versionUIXamlPatch = "2.8.6"
-    $fileUIXaml = "https://github.com/microsoft/microsoft-ui-xaml/releases/download/v${versionUIXamlPatch}/Microsoft.UI.Xaml.${versionUIXamlMinor}.x64.appx"
-    # Write-Host "$fileUIXaml"
-
-    try {
-        Write-Host "Downloading Microsoft.VCLibs Dependency..."
-        Invoke-WebRequest -Uri $fileVCLibs -OutFile $ENV:TEMP\Microsoft.VCLibs.x64.Desktop.appx
-        Write-Host "Downloading Microsoft.UI.Xaml Dependency...`n"
-        Invoke-WebRequest -Uri $fileUIXaml -OutFile $ENV:TEMP\Microsoft.UI.Xaml.x64.appx
-    } catch {
-        Write-Host "Failed to install Winget Dependencies!"
-    }
-}
-
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -2631,6 +2358,32 @@ Function VC-User-Choice {
     }
 }
 
+# Function to update all available apps using choco
+Function Choco-Update-All {
+    # Check if Chocolatey is installed
+    if (Get-Command choco -ErrorAction SilentlyContinue) {
+        
+        # Enable global confirmation for silent updates
+        choco feature enable -n allowGlobalConfirmation
+        
+        # Update all installed packages with Chocolatey
+        choco upgrade all -force -y
+    } else {
+        Write-Host "Chocolatey is not installed."
+        Start-Sleep -Seconds 1
+    }
+}
+
+# Function to get the latest stable release from GitHub
+Function Get-LatestStableRelease {
+    $releasesApiUrl = "https://api.github.com/repos/brave/brave-browser/releases"
+    $releases = Invoke-RestMethod -Uri $releasesApiUrl
+    $stableReleases = $releases | Where-Object { 
+        $_.prerelease -eq $false -and $_.name -notlike "*beta*" -and $_.name -notlike "*nightly*" 
+    }
+    $latestRelease = $stableReleases | Sort-Object { [version]$_.tag_name.TrimStart('v') } -Descending | Select-Object -First 1
+    return $latestRelease
+}
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -2638,25 +2391,24 @@ do {
     Show-Menu
     $key = [System.Console]::ReadKey($true).KeyChar
     switch ($key) {
+		"0" { Create-RestorePoint }
         "1" { Tweaks }
         "2" { BCD-Tweaks }
         "3" { Install-Choco } 
-        "4" { Get-Winget }  
-        "5" { Update-Apps } 
-		"6" { Install-Browsers }  
-        "7" { Disable-WindowsUpdate } 
-		"8" { Enable-WindowsUpdate } 
-		"9" { Create-RestorePoint }
+        "4" { Update-Apps } 
+		"5" { Install-Brave }  
+        "6" { Disable-WindowsUpdate } 
+		"7" { Enable-WindowsUpdate } 
+		"8" { Activate-Win }
+		"9" { cUpdate-Drivers }
 		"T" { Clean-TempFolders }
-		"U" { Remove-Winget }
 		"C" { Remove-Choco }
-		"A" { Activate-Win }
-		"D" { cUpdate-Drivers }
-		"S" { cSystem-Repairs }
+		"R" { cSystem-Repairs }
 		"M" { Show-Menu }
         default { Break }
     }
 } while ($key -ne "0")
+
 
 
 
