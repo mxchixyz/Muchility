@@ -44,7 +44,7 @@ function Compile-And-Run {
 }
 
 function goodbye {
-exit
+clear-host
 }
 
 # Main execution
