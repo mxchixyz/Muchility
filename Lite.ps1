@@ -41,10 +41,12 @@ function Compile-And-Run {
     Move-Item -Path $OutputExe -Destination $FinalExePath -Force
     Remove-Item -Path $TempDir -Recurse -Force
     Start-Process -FilePath $FinalExePath
+    goodbye
 }
 
 function goodbye {
 clear-host
+exit
 }
 
 # Main execution
