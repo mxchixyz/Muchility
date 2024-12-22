@@ -41,6 +41,7 @@ function Compile-And-Run {
     Move-Item -Path $OutputExe -Destination $FinalExePath -Force
     Remove-Item -Path $TempDir -Recurse -Force
     Start-Process -FilePath $FinalExePath
+    exit
 }
 
 # Main execution
