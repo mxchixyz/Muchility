@@ -41,10 +41,13 @@ function Compile-And-Run {
     Move-Item -Path $OutputExe -Destination $FinalExePath -Force
     Remove-Item -Path $TempDir -Recurse -Force
     Start-Process -FilePath $FinalExePath
-    exit
+}
+
+function goodbye {
+exit
 }
 
 # Main execution
 if (-not (Check-PS2EXE)) { Install-PS2EXE }
 Compile-And-Run
-
+goodbye
