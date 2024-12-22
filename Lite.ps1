@@ -1,3 +1,8 @@
+#╔══╗══╗╔═╗═╗╔═══╗╔═╗╔═╗╔═╗"
+#║*   *║║*║*║║*║*║║*╚╝*║╠-╣"
+#║ ║ ║ ║║*║*║║*╚═╣║*╔╗*║║*║"
+#╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
+
 $Host.UI.RawUI.BackgroundColor = "Black"
 $Host.UI.RawUI.WindowTitle = "Lite - Updater"
 
