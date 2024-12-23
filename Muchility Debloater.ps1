@@ -72,4 +72,9 @@ Function ClearStartMenu {
 	Start-Sleep -Seconds 5
 	RemoveApps
     ClearStartMenu
-	Start-Sleep -Seconds 3
+    goodbye
+
+ function goodbye {
+clear-host
+exit
+}
