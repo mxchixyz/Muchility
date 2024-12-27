@@ -1348,7 +1348,6 @@ Function BCD-Tweaks {
 return
 }
 
-Tweaks-Muchi-Apps
 Clear-Host
 Tweaks-Muchi-Power-Plan
 Clear-Host
