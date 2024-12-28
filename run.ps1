@@ -1250,7 +1250,7 @@ Function SecurityUp1 {
 
 
 Function AIO-Tweaks {
-Host.UI.RawUI.WindowTitle = "Muchility - Tweaks"
+$Host.UI.RawUI.WindowTitle = "Muchility - Tweaks"
 Pplan1
 Clear-Host
 SoftwareInstalls1
