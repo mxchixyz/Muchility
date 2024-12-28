@@ -3,12 +3,12 @@
 #║ ║ ║ ║║*║*║║*╚═╣║*╔╗*║║*║"
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
-$MuVer = "1.3"
+$MuVer = "1.31"
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # Latest updates post here
-$MuchiLU = "Reworked Tweaks"
+$MuchiLU = "Moved BCD Tweaks > Tweaks + Tweak Rework!"
 
 Function Muchility-Menu {
 	$Host.UI.RawUI.WindowTitle = "Muchility - Created By Muchi"
@@ -29,37 +29,33 @@ Function Muchility-Menu {
 	Write-Host "						Improve Performance, Remove Bloatware + More" -ForegroundColor Blue
 	
 	Write-Host "2. " -NoNewline 
-	wRITE-hOST "BCD Tweaks" -NoNewline -ForegroundColor DarkCyan
-	Write-Host "						Enable Highest Mode + More" -ForegroundColor Blue
-	
-	Write-Host "3. " -NoNewline 
 	Write-Host "Install Choco" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Install Chocolatey" -ForegroundColor Blue
 	
-	Write-Host "4. " -NoNewline 
+	Write-Host "3. " -NoNewline 
 	Write-Host "Update Apps" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "						Update Software via Choco & Update C++" -ForegroundColor Blue
 	
-    Write-Host "5. " -NoNewline 
+    Write-Host "4. " -NoNewline 
 	Write-Host "Install Brave" -ForegroundColor DarkCyan -NoNewline
 	Write-Host "					via Choco" -ForegroundColor Blue
 	
-	Write-Host "6. " -NoNewline 
+	Write-Host "5. " -NoNewline 
     Write-Host "Windows Update" -ForegroundColor DarkCyan
 	
-	Write-Host "7. " -NoNewline 
+	Write-Host "6. " -NoNewline 
 	Write-Host "Activate Windows " -NoNewLine -ForegroundColor DarkCyan
 	Write-Host "					HWID Activation" -ForegroundColor Blue
 	
-	Write-Host "8. " -NoNewline 
+	Write-Host "7. " -NoNewline 
 	Write-Host "Update Drivers" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Download & Install Drivers via SDI" -ForegroundColor Blue
 	
-	Write-Host "9. " -NoNewline 
+	Write-Host "8. " -NoNewline 
 	Write-Host "Repair System Files" -NoNewline -ForegroundColor DarkCyan
 	Write-Host "					Check For Corrupted Files" -ForegroundColor Blue
 	
-	Write-Host "T. " -NoNewLine 
+	Write-Host "9. " -NoNewLine 
 	Write-Host "Clear Temp Folders" -NoNewLine -ForegroundColor DarkCyan
 	Write-Host "					Free Up Space & Delete Temporary Folders" -ForegroundColor Blue
 	
@@ -80,7 +76,7 @@ Function Muchility-Menu {
 
 
 
-# Below are all functions 0-9 & T,C
+# Below are all functions 0-9 + C
 
 #0 //////////////////////////////////////////////////////////////////////////////
 Function Create-RestorePoint {
@@ -124,35 +120,44 @@ Function Create-RestorePoint {
 }
 
 #1 //////////////////////////////////////////////////////////////////////////////
-Function Tweaks {
-	$Host.UI.RawUI.WindowTitle = "Muchility - Tweaks"
-	AIO-Tweaks
+Function AIO-Tweaks {
+$Host.UI.RawUI.WindowTitle = "Muchility - Tweaks"
+Clear-Host
+Pplan1
+Clear-Host
+SoftwareInstalls1
+Clear-Host
+Debloat1
+Clear-Host
+1Annoyances
+Clear-Host
+Wifi-Sense1
+Clear-Host
+Ads1
+Clear-Host
+DVR1
+Clear-Host
+KBM1
+Clear-Host
+Misc1
+Clear-Host
+Services1
+Clear-Host
+Performance1
+Clear-Host
+Tasks1
+Clear-Host
+OneDrive1
+Clear-Host
+SecurityUp1
+Clear-Host
+BCD1
+Clear-Host
+Clean-TempFolders
+Clear-Host
 }
 
 #2 //////////////////////////////////////////////////////////////////////////////
-Function BCD-Tweaks {
-	$Host.UI.RawUI.WindowTitle = "Muchility - BCD Tweaks"
-	Clear-Host
-    Write-Host "Configuring BCD Entries..."
-    # Add BCD configuration commands here
-
-	try {
-    # Set default boot menu policy to standard
-    Start-Process -FilePath "cmd.exe" -ArgumentList '/c bcdedit /set {default} bootmenupolicy standard' -Wait -NoNewWindow -ErrorAction Stop
-	Clear-Host
-    # Set current boot menu policy to standard
-    Start-Process -FilePath "cmd.exe" -ArgumentList '/c bcdedit /set {current} bootmenupolicy standard' -Wait -NoNewWindow -ErrorAction Stop
-	Clear-Host
-    # Enable highest mode globally
-    Start-Process -FilePath "cmd.exe" -ArgumentList '/c bcdedit /set {globalsettings} highestmode true' -Wait -NoNewWindow -ErrorAction Stop
-	Clear-Host
-} catch {
-    Write-Host "Failed to configure boot settings. Ensure you are running as administrator." -ForegroundColor DarkRed
-}
-return
-}
-
-#3 //////////////////////////////////////////////////////////////////////////////
 Function Install-Choco {
 	$Host.UI.RawUI.WindowTitle = "Muchility - Installing Choco"
     Clear-Host
@@ -172,7 +177,7 @@ Function Install-Choco {
     }
 }
 
-#4 //////////////////////////////////////////////////////////////////////////////
+#3 //////////////////////////////////////////////////////////////////////////////
 Function Update-Apps {
     $Host.UI.RawUI.WindowTitle = "Muchility - Updating Apps"
     clear-host
@@ -185,13 +190,13 @@ Function Update-Apps {
 	VC-User-Choice
 }
 
-#5 //////////////////////////////////////////////////////////////////////////////
+#4 //////////////////////////////////////////////////////////////////////////////
 Function Install-Brave {
 	choco feature enable -n allowGlobalConfirmation
     choco install brave
 }
 
-#6 //////////////////////////////////////////////////////////////////////////////
+#5 //////////////////////////////////////////////////////////////////////////////
 Function WinUp-Menu {
 	$Host.UI.RawUI.WindowTitle = "Muchility - Windows Update"
     clear-host
@@ -225,7 +230,7 @@ Function WinUp-Menu {
     }
 }
 
-#7 //////////////////////////////////////////////////////////////////////////////
+#6 //////////////////////////////////////////////////////////////////////////////
 Function Activate-Win {
     $Host.UI.RawUI.WindowTitle = "Muchility - Getting Activation Script"
     Clear-Host
@@ -270,7 +275,7 @@ Function Activate-Win {
     Return
 }
 
-#8 //////////////////////////////////////////////////////////////////////////////
+#7 //////////////////////////////////////////////////////////////////////////////
 Function cUpdate-Drivers {
     $Host.UI.RawUI.WindowTitle = "Muchility - Updating Drivers"
     Clear-Host
@@ -356,7 +361,7 @@ Clear-Host
     }
 }
 
-#9 //////////////////////////////////////////////////////////////////////////////
+#8 //////////////////////////////////////////////////////////////////////////////
 Function cSystem-Repairs {
 	$Host.UI.RawUI.WindowTitle = "Muchility - System Repairs"
     clear-host
@@ -378,7 +383,7 @@ Function cSystem-Repairs {
     Write-Host "System repair tasks completed. Please reboot if required." -ForegroundColor Green
 }
 
-#T //////////////////////////////////////////////////////////////////////////////
+#9 //////////////////////////////////////////////////////////////////////////////
 Function Clean-TempFolders {
     # Define the paths to the temp folders
     $windowsTemp = "C:\Windows\Temp"
@@ -432,7 +437,7 @@ Function Remove-Choco {
 # Below is Tweak Functions 
 
 Function Pplan1 {
-	$Host.UI.RawUI.WindowTitle = "Muchility - Importing & Applying Power Plan"												# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	$Host.UI.RawUI.WindowTitle = "Muchility - Importing & Applying Power Plan"
 	Write-Host "Importing & Applying Power Plan"
 	Start-Sleep -Seconds 1
 	
@@ -1245,42 +1250,30 @@ Function SecurityUp1 {
 	Clear-Host
 }
 
+Function BCD1 {
+	$Host.UI.RawUI.WindowTitle = "Muchility - BCD Tweaks"
+	Clear-Host
+    Write-Host "Configuring BCD Entries..."
+    # Add BCD configuration commands here
 
-
-
-
-Function AIO-Tweaks {
-$Host.UI.RawUI.WindowTitle = "Muchility - Tweaks"
-Pplan1
-Clear-Host
-SoftwareInstalls1
-Clear-Host
-Debloat1
-Clear-Host
-1Annoyances
-Clear-Host
-Wifi-Sense1
-Clear-Host
-Ads1
-Clear-Host
-DVR1
-Clear-Host
-KBM1
-Clear-Host
-Misc1
-Clear-Host
-Services1
-Clear-Host
-Performance1
-Clear-Host
-Tasks1
-Clear-Host
-OneDrive1
-Clear-Host
-SecurityUp1
-Clear-Host
-Clean-TempFolders
+	try {
+    # Set default boot menu policy to standard
+    Start-Process -FilePath "cmd.exe" -ArgumentList '/c bcdedit /set {default} bootmenupolicy standard' -Wait -NoNewWindow -ErrorAction Stop
+	Clear-Host
+    # Set current boot menu policy to standard
+    Start-Process -FilePath "cmd.exe" -ArgumentList '/c bcdedit /set {current} bootmenupolicy standard' -Wait -NoNewWindow -ErrorAction Stop
+	Clear-Host
+    # Enable highest mode globally
+    Start-Process -FilePath "cmd.exe" -ArgumentList '/c bcdedit /set {globalsettings} highestmode true' -Wait -NoNewWindow -ErrorAction Stop
+	Clear-Host
+} catch {
+    Write-Host "Failed to configure boot settings. Ensure you are running as administrator." -ForegroundColor DarkRed
 }
+return
+}
+
+
+
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1611,16 +1604,15 @@ do {
     $key = [System.Console]::ReadKey($true).KeyChar
     switch ($key) {
 		"0" { Create-RestorePoint }
-        "1" { Tweaks }
-        "2" { BCD-Tweaks }
-        "3" { Install-Choco } 
-        "4" { Update-Apps } 
-		"5" { Install-Brave }  
-        "6" { WinUp-Menu } 
-		"7" { Activate-Win }
-		"8" { cUpdate-Drivers }
-		"9" { cSystem-Repairs }
-		"T" { Clean-TempFolders }
+        "1" { AIO-Tweaks }
+        "2" { Install-Choco } 
+        "3" { Update-Apps } 
+		"4" { Install-Brave }  
+        "5" { WinUp-Menu } 
+		"6" { Activate-Win }
+		"7" { cUpdate-Drivers }
+		"8" { cSystem-Repairs }
+		"9" { Clean-TempFolders }
 		"C" { Remove-Choco }
 		"M" { Muchility-Menu }
         default { Break }
