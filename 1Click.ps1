@@ -32,7 +32,14 @@ Function 1SoftwareInstalls {
     }
     Set-ItemProperty -Path $wuPath -Name "ExcludeWUDriversInQualityUpdate" -Value 1
 
-    Write-Host "All automatic installations and updates have been blocked."
+    # Disable OEM app downloads
+    $oemPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata"
+    if (-not (Test-Path $oemPath)) {
+        New-Item -Path $oemPath -Force | Out-Null
+    }
+    Set-ItemProperty -Path $oemPath -Name "PreventDeviceMetadataFromNetwork" -Value 1
+
+    Write-Host "All automatic installations, updates, and OEM app downloads have been blocked."
 }
 
 
