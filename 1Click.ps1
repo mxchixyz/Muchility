@@ -33,6 +33,7 @@ Function 1SoftwareInstalls {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0
 
         Write-Host "All automatic installations, updates, and OEM app downloads have been blocked."
+	Start-Sleep -Seconds 2
 }
 
 
