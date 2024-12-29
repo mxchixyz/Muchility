@@ -35,9 +35,6 @@ Function 1SoftwareInstalls {
 
         Write-Host "All automatic installations, updates, and OEM app downloads have been blocked."
     }
-    catch {
-        Write-Host "An error occurred: $_"
-    }
 }
 
 
