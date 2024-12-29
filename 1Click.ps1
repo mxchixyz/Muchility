@@ -7,7 +7,6 @@ set-executionpolicy unrestricted
 
 
 Function 1SoftwareInstalls {
-    try {
         # Create and set DenyDeviceIDs registry key
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Force | Out-Null
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Name "DenyDeviceIDs" -Value 1
@@ -34,7 +33,6 @@ Function 1SoftwareInstalls {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0
 
         Write-Host "All automatic installations, updates, and OEM app downloads have been blocked."
-    }
 }
 
 
