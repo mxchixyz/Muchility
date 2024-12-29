@@ -38,8 +38,6 @@ Function 1SoftwareInstalls {
     catch {
         Write-Host "An error occurred: $_"
     }
-    
-    Read-Host "Press Enter to exit"
 }
 
 
