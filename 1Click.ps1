@@ -7,39 +7,39 @@ set-executionpolicy unrestricted
 
 
 Function 1SoftwareInstalls {
-    # Registry path to enforce blocking policy
-    $regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions"
+    try {
+        # Create and set DenyDeviceIDs registry key
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Force | Out-Null
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Name "DenyDeviceIDs" -Value 1
 
-    # Create the registry key if it doesn't exist
-    if (-not (Test-Path $regPath)) {
-        New-Item -Path $regPath -Force | Out-Null
+        # Create and set DeviceSetupManager registry key
+        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceSetup" -Force | Out-Null
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceSetup" -Name "DeviceSetupManager" -Value 0
+
+        # Create and set ExcludeWUDriversInQualityUpdate registry key
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force | Out-Null
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Value 1
+
+        # Create and set PreventDeviceMetadataFromNetwork registry key
+        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" -Force | Out-Null
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Value 1
+
+        # Create DeviceInstaller key if it does not exist, then set DisableCoInstallers value
+        if (-not (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceInstaller")) {
+            New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceInstaller" -Force | Out-Null
+        }
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceInstaller" -Name "DisableCoInstallers" -Value 1
+
+        # Set SearchOrderConfig registry key
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0
+
+        Write-Host "All automatic installations, updates, and OEM app downloads have been blocked."
     }
-
-    # Set policy to block all automatic installations
-    Set-ItemProperty -Path $regPath -Name "DenyDeviceIDs" -Value $true
-
-    # Additional registry setting to disable automatic driver downloads
-    $driverPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceSetup"
-    if (-not (Test-Path $driverPath)) {
-        New-Item -Path $driverPath -Force | Out-Null
+    catch {
+        Write-Host "An error occurred: $_"
     }
-    Set-ItemProperty -Path $driverPath -Name "DeviceSetupManager" -Value 0
-
-    # Disable Windows Update from automatically fetching drivers
-    $wuPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
-    if (-not (Test-Path $wuPath)) {
-        New-Item -Path $wuPath -Force | Out-Null
-    }
-    Set-ItemProperty -Path $wuPath -Name "ExcludeWUDriversInQualityUpdate" -Value 1
-
-    # Disable OEM app downloads
-    $oemPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata"
-    if (-not (Test-Path $oemPath)) {
-        New-Item -Path $oemPath -Force | Out-Null
-    }
-    Set-ItemProperty -Path $oemPath -Name "PreventDeviceMetadataFromNetwork" -Value 1
-
-    Write-Host "All automatic installations, updates, and OEM app downloads have been blocked."
+    
+    Read-Host "Press Enter to exit"
 }
 
 
