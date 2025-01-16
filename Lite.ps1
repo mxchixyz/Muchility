@@ -37,7 +37,7 @@ function Compile-And-Run {
 
     Invoke-WebRequest -Uri $RunScriptUrl -OutFile $RunScriptPath -UseBasicParsing
     Invoke-WebRequest -Uri $IconUrl -OutFile $IconPath -UseBasicParsing
-    ps2exe $RunScriptPath $OutputExe -iconFile $IconPath
+    ps2exe $RunScriptPath $OutputExe -iconFile $IconPath -noConsole
     Move-Item -Path $OutputExe -Destination $FinalExePath -Force
     Remove-Item -Path $TempDir -Recurse -Force
     Start-Process -FilePath $FinalExePath
