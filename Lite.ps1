@@ -3,10 +3,6 @@
 #║ ║ ║ ║║*║*║║*╚═╣║*╔╗*║║*║"
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
-$Host.UI.RawUI.BackgroundColor = "Black"
-$Host.UI.RawUI.WindowTitle = "Lite - Updater"
-
-
 # Check if ps2exe is installed
 function Check-PS2EXE {
     try {
