@@ -33,7 +33,11 @@ function Compile-And-Run {
 
     Invoke-WebRequest -Uri $RunScriptUrl -OutFile $RunScriptPath -UseBasicParsing
     Invoke-WebRequest -Uri $IconUrl -OutFile $IconPath -UseBasicParsing
-    ps2exe $RunScriptPath $OutputExe -iconFile $IconPath -noConsole
+
+    ps2exe $RunScriptPath $OutputExe -iconFile $IconPath -noConsole `
+        -Version "2.1" -Description "Muchility Created By Muchi @ mxchi.xyz" `
+        -Copyright "Muchi @ mxchi.xyz" -Product "Muchility"
+
     Move-Item -Path $OutputExe -Destination $FinalExePath -Force
     Remove-Item -Path $TempDir -Recurse -Force
     Start-Process -FilePath $FinalExePath
@@ -41,11 +45,12 @@ function Compile-And-Run {
 }
 
 function goodbye {
-clear-host
-exit
+    clear-host
+    exit
 }
 
 # Main execution
 if (-not (Check-PS2EXE)) { Install-PS2EXE }
 Compile-And-Run
 goodbye
+
