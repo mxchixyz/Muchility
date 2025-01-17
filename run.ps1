@@ -4,48 +4,269 @@
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
 
-# Load required assembly
-Add-Type -AssemblyName System.Windows.Forms
+Function MuchiForm {
+    # Load required assembly
+    Add-Type -AssemblyName System.Windows.Forms
 
-# Define button parameters
-$buttonWidth = 120
-$buttonHeight = 40
-$paddingX = 20
-$paddingY = 20
-$columns = 2
-$rows = 4  # Adjusting to 8 buttons, you can tweak as needed
+    # Define button parameters
+    $buttonWidth = 120
+    $buttonHeight = 40
+    $paddingX = 20
+    $paddingY = 20
+    $columns = 2
+    $rows = 4
 
-# Calculate window size based on buttons
-$formWidth = ($columns * ($buttonWidth + $paddingX)) + $paddingX
-$formHeight = ($rows * ($buttonHeight + $paddingY)) + $paddingY + 40
+    # Calculate window size based on buttons
+    $formWidth = ($columns * ($buttonWidth + $paddingX)) + $paddingX
+    $formHeight = ($rows * ($buttonHeight + $paddingY)) + $paddingY + 40
 
-# Create a new form
-$form = New-Object System.Windows.Forms.Form
-$form.Text = "Muchility 2.0"
-$form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
+    # Create a new form
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Muchility 2.1"
+    $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
 
-# Apply dark mode colors
-$form.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)  # Dark background color
-$form.ForeColor = [System.Drawing.Color]::White  # Light text color
+    # Apply dark mode colors
+    $form.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+    $form.ForeColor = [System.Drawing.Color]::White
 
-# Make the form fixed size (no resizing allowed)
-$form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog  # Prevent resizing
-$form.MaximizeBox = $false  # Disable maximize button
-$form.MinimizeBox = $false  # Disable minimize button
-$form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen  # Center the window
+    # Make the form fixed size (no resizing allowed)
+    $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $form.MaximizeBox = $false
+    $form.MinimizeBox = $false
+    $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
+
+    # Helper function to add buttons
+    Function Add-Button {
+        param (
+            [string]$text,
+            [int]$x,
+            [int]$y,
+            [scriptblock]$function
+        )
+        $button = New-Object System.Windows.Forms.Button
+        $button.Text = $text
+        $button.Size = New-Object System.Drawing.Size($buttonWidth, $buttonHeight)
+        $button.Location = New-Object System.Drawing.Point($x, $y)
+        $button.Add_Click($function)
+        $form.Controls.Add($button)
+    }
+
+    # Button definitions
+    $tweakButtons = @(
+        @{ Name = "Tweaks Menu"; Function = { Tweaks1 } },
+        @{ Name = "Activate Windows"; Function = { Activate-Windows } },
+        @{ Name = "Windows Update"; Function = { Windows-Update } },
+        @{ Name = "Repair System"; Function = { Repair-System } },
+        @{ Name = "Clear Temp"; Function = { Clear-Temp } },
+        @{ Name = "Update Drivers"; Function = { Update-Drivers } }
+		@{ Name = "Update All Apps"; Function = { UpdateAll1 } }
+		@{ Name = "Create Restore Point"; Function = { 1Restore } }
+    )
+
+    # Add buttons dynamically
+    for ($i = 0; $i -lt $tweakButtons.Count; $i++) {
+        $col = $i % $columns
+        $row = [math]::Floor($i / $columns)
+        $x = ($col * ($buttonWidth + $paddingX)) + $paddingX
+        $y = ($row * ($buttonHeight + $paddingY)) + $paddingY
+
+        $button = $tweakButtons[$i]
+        Add-Button -text $button.Name -x $x -y $y -function $button.Function
+    }
+
+    # Display the form
+    [void]$form.ShowDialog()
+}
 
 
 
+
+Function TweaksForm {
+
+    # Load required assembly
+    Add-Type -AssemblyName System.Windows.Forms
+
+    # Define button parameters
+    $buttonWidth = 120
+	$buttonHeight = 40
+	$paddingX = 20
+	$paddingY = 20
+	$columns = 3
+	$rows = 5  # Update this to 8 rows to accommodate all buttons
+
+	# Calculate window size based on buttons
+	$formWidth = ($columns * ($buttonWidth + $paddingX)) + $paddingX
+	$formHeight = ($rows * ($buttonHeight + $paddingY)) + $paddingY + 40
+
+	# Create the tweaks form
+	$tweaksForm = New-Object System.Windows.Forms.Form
+	$tweaksForm.Text = "Muchility - Tweaks"
+	$tweaksForm.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
+	$tweaksForm.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
+
+    # Apply dark mode colors
+    $tweaksForm.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+    $tweaksForm.ForeColor = [System.Drawing.Color]::White
+
+    # Make the form fixed size (no resizing allowed)
+    $tweaksForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $tweaksForm.MaximizeBox = $false
+    $tweaksForm.MinimizeBox = $false
+    $tweaksForm.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
+
+    # Helper function to add buttons with custom function links
+    Function Add-Button {
+        param (
+            [System.Windows.Forms.Form]$form,
+            [string]$text,
+            [int]$x,
+            [int]$y,
+            [scriptblock]$function
+        )
+        $button = New-Object System.Windows.Forms.Button
+        $button.Text = $text
+        $button.Size = New-Object System.Drawing.Size($buttonWidth, $buttonHeight)
+        $button.Location = New-Object System.Drawing.Point($x, $y)
+
+        # Adjust font size to fit the text within the button
+        $button.Font = New-Object System.Drawing.Font("Arial", 8)
+        $button.AutoSize = $false
+        $button.MaximumSize = New-Object System.Drawing.Size($buttonWidth, $buttonHeight)
+
+        while ($button.PreferredSize.Width > $button.Width) {
+            $button.Font = New-Object System.Drawing.Font($button.Font.Name, $button.Font.Size - 1)
+        }
+
+        # Add the button click event handler, directly invoking the function
+        $button.Add_Click($function)
+
+        $form.Controls.Add($button)
+    }
+
+    # Define the button names and corresponding functions directly as scriptblocks
+    $tweakButtons = @(
+        @{ Name = "Block Device Installers"; Function = { 1SoftwareInstalls } },
+        @{ Name = "Delete OneDrive"; Function = { 1Drive } },
+        @{ Name = "Disable Wi-Fi Sense"; Function = { WiFiS1 } },
+        @{ Name = "Disable Windows Ads"; Function = { Ads1 } },
+        @{ Name = "DVR Tweaks"; Function = { 1DVR } },
+        @{ Name = "Enable Game Mode"; Function = { Game-Mode1 } },
+        @{ Name = "KB + Mouse"; Function = { KBM1 } },
+        @{ Name = "Muchi Power Plan"; Function = { MPP1 } },
+        @{ Name = "Optimize Services"; Function = { Services1 } },
+        @{ Name = "Performance Tweaks"; Function = { Performance1 } },
+        @{ Name = "Scheduled Tasks"; Function = { Tasks1 } },
+        @{ Name = "Take Ownership"; Function = { Owner1 } },
+        @{ Name = "Security Updates Only"; Function = { SecurityUp1 } }
+		@{ Name = "Debloater"; Function = { 1Debloat } }
+		@{ Name = "Run All Tweaks"; Function = { 111RunAll } }
+    )
+
+    # Add buttons dynamically
+    $col = 0
+    $row = 0
+    foreach ($button in $tweakButtons) {
+        $x = ($col * ($buttonWidth + $paddingX)) + $paddingX
+        $y = ($row * ($buttonHeight + $paddingY)) + $paddingY
+
+        # Create and add the button with the correct function
+        Add-Button -form $tweaksForm -text $button.Name -x $x -y $y -function $button.Function
+
+        # Update row/column positions
+        $col++
+        if ($col -eq $columns) {
+            $col = 0
+            $row++
+        }
+    }
+
+    # Show the TweaksForm
+    $tweaksForm.ShowDialog()
+}
+
+
+
+
+Function UpdateForm {
+    # Load required assembly
+    Add-Type -AssemblyName System.Windows.Forms
+
+    # Define button parameters
+    $buttonWidth = 120
+    $buttonHeight = 40
+    $paddingX = 20
+    $paddingY = 20
+    $columns = 3
+    $rows = 1
+
+    # Calculate window size based on buttons
+    $formWidth = ($columns * ($buttonWidth + $paddingX)) + $paddingX
+    $formHeight = ($rows * ($buttonHeight + $paddingY)) + $paddingY + 40
+
+    # Create a new form
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Muchility - Windows Update"
+    $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
+
+    # Apply dark mode colors
+    $form.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+    $form.ForeColor = [System.Drawing.Color]::White
+
+    # Make the form fixed size (no resizing allowed)
+    $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $form.MaximizeBox = $false
+    $form.MinimizeBox = $false
+    $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
+
+    # Helper function to add buttons
+    Function Add-Button {
+        param (
+            [string]$text,
+            [int]$x,
+            [int]$y,
+            [scriptblock]$function
+        )
+        $button = New-Object System.Windows.Forms.Button
+        $button.Text = $text
+        $button.Size = New-Object System.Drawing.Size($buttonWidth, $buttonHeight)
+        $button.Location = New-Object System.Drawing.Point($x, $y)
+        $button.Add_Click($function)
+        $form.Controls.Add($button)
+    }
+
+    # Button definitions
+    $updateButtons = @(
+        @{ Name = "Enable"; Function = { WinUp-Ena } },
+        @{ Name = "Disable"; Function = { WinUp-Dis } },
+        @{ Name = "Security Only"; Function = { WinUp-Sec } }
+    )
+
+    # Add buttons dynamically
+    for ($i = 0; $i -lt $updateButtons.Count; $i++) {
+        $col = $i % $columns
+        $row = [math]::Floor($i / $columns)
+        $x = ($col * ($buttonWidth + $paddingX)) + $paddingX
+        $y = ($row * ($buttonHeight + $paddingY)) + $paddingY
+
+        $button = $updateButtons[$i]
+        Add-Button -text $button.Name -x $x -y $y -function $button.Function
+    }
+
+    # Display the form
+    [void]$form.ShowDialog()
+}
 
 
 
 # All Functions
 
 
+
+
 #Tweaks, Individual + RunAll
 
-
 Function 1SoftwareInstalls {
+	MuchiDMB "Blocking Auto Device Installers!"
         # Create and set DenyDeviceIDs registry key
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Force | Out-Null
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Name "DenyDeviceIDs" -Value 1
@@ -70,44 +291,70 @@ Function 1SoftwareInstalls {
 
         # Set SearchOrderConfig registry key
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0
-
-	Start-Sleep -Seconds 2
 }
 
-Function 1Debloat {
-	Start-Sleep -Seconds 2
-	$SafeApps = "AAD.brokerplugin|accountscontrol|apprep.chxapp|assignedaccess|asynctext|bioenrollment|capturepicker|cloudexperience|contentdelivery|desktopappinstaller|ecapp|edge|extension|getstarted|immersivecontrolpanel|lockapp|net.native|oobenet|parentalcontrols|PPIProjection|search|sechealth|secureas|shellexperience|startmenuexperience|terminal|vclibs|xaml|XGpuEject"
-	If ($Xbox) {
-		$SafeApps = "$SafeApps|Xbox" 
+Function 1Drive {
+	MuchiDMB "Deleting OneDrive!"
+Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
+    if (Test-Path "$($_.FullName)\OneDrive") {
+        if ((Get-ChildItem "$($_.FullName)\OneDrive" -File).Count -gt 0) {
+            exit 6000
+        }
+    }
 }
-	
-	If ($Allapps) {
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
+
+Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+
+$oneDrivePaths = @(
+    "$env:windir\System32\OneDriveSetup.exe",
+    "$env:windir\SysWOW64\OneDriveSetup.exe"
+)
+
+foreach ($path in $oneDrivePaths) {
+    if (Test-Path $path) {
+        & $path /uninstall | Out-Null
+    }
 }
-}	Else {
-		$SafeApps = "$SafeApps|$GoodApps"
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
+
+Get-ChildItem "HKU:\" | Where-Object { $_.Name -match 'S-.*' -or $_.Name -match 'AME_UserHive_[^_]*' } | ForEach-Object {
+    $userKey = $_.Name
+    $volEnvKey = "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BannerStore"
+    if (Test-Path $volEnvKey) {
+        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BannerStore" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers\Handlers" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+    }
 }
+
+Remove-Item -Path "$env:ProgramData\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+
+Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
+    Remove-Item -Path "$($_.FullName)\AppData\Local\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "$($_.FullName)\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "$($_.FullName)\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk" -Force -ErrorAction SilentlyContinue
 }
+
+Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SyncRootManager" | Where-Object { $_.Name -like "*OneDrive*" } | ForEach-Object {
+    Remove-Item -Path $_.PSPath -Force -ErrorAction SilentlyContinue
+}
+
+Get-ScheduledTask | Where-Object { $_.TaskName -match "OneDrive Reporting Task|OneDrive Standalone Update Task" } | ForEach-Object {
+    Unregister-ScheduledTask -TaskName $_.TaskName -Force -ErrorAction SilentlyContinue
+}
+
+
+}
+
+Function WiFiS1 {
+	MuchiDMB "Disabling Wi-Fi Sense!"
+    New-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -PropertyType DWord -Value 0 -Force
+    New-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -PropertyType DWord -Value 0 -Force
 }
 
 Function Ads1 {
-    
-    Start-Sleep -Seconds 2
+	MuchiDMB "Disabling Windows Ads!"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "FeatureManagementEnabled" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Value 0
@@ -131,8 +378,7 @@ Function Ads1 {
 }
 
 Function 1DVR {
-    
-    Start-Sleep -Seconds 2
+	MuchiDMB "Applying DVR Tweaks!"
     Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "UseNexusForGameBarEnabled" -Value 0
     New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -PropertyType DWord -Value 0 -Force
@@ -174,9 +420,12 @@ Function 1DVR {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "MicrophoneGain" -Value ([byte[]]@(0x10, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
 }
 
+Function Game-Mode1 {
+	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 1;
+	MuchiDMB "Game Mode Enabled!"
+}
+
 Function KBM1 {
-    
-    Start-Sleep -Seconds 2
     Set-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\DWM' -Name 'UseDpiScaling' -Value 0
     New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\Keyboard Response' -Name 'Flags' -PropertyType String -Value '2' -Force
     New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\Keyboard Response' -Name 'AutoRepeatRate' -PropertyType String -Value '0' -Force
@@ -194,12 +443,73 @@ Function KBM1 {
     New-ItemProperty -Path 'HKCU:\Control Panel\Mouse' -Name 'SmoothMouseYCurve' -PropertyType Binary -Value ([byte[]]@(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0x00, 0x00, 0x00, 0x00, 0x00)) -Force
     Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters' -Name 'KeyboardDataQueueSize' -Value 30 -Type DWord
     Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters' -Name 'MouseDataQueueSize' -Value 30 -Type DWord
+	MuchiDMB "Keyboard & Mouse Tweaks Applied!"
+}
+
+Function MPP1 {
+	MuchiDMB "Importing Muchi Power Plan!"
+    $downloadUrl = "https://github.com/Muchiiix/Muchility/raw/refs/heads/main/Muchi.pow"
+    $destinationPath = "C:\_temp\Muchi.pow"
+    $targetDir = Split-Path -Path $destinationPath
+    if (!(Test-Path -Path $targetDir)) {
+        New-Item -ItemType Directory -Path $targetDir -Force
+    }
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $destinationPath
+    powercfg -import $destinationPath
+    $schemes = powercfg /l
+    $schemeGuid = $schemes | Select-String -Pattern "Muchi" | ForEach-Object { $_.ToString().Split()[3] }
+    if ($schemeGuid) {
+        powercfg /s $schemeGuid
+    } else {
+    }
+}
+
+Function Owner1 {
+	MuchiDMB "Added Take Ownership To Context Menu"
+    $regFilePath = "C:\_temp\takeownership.reg"
+    $regContent = @"
+Windows Registry Editor Version 5.00
+; Adds "Take Ownership" to the Right Click Context Menu
+[-HKEY_CLASSES_ROOT\*\shell\TakeOwnership]
+[-HKEY_CLASSES_ROOT\*\shell\runas]
+[HKEY_CLASSES_ROOT\*\shell\TakeOwnership]
+@="Take Ownership"
+"Extended"=-
+"HasLUAShield"=""
+"NoWorkingDirectory"=""
+"NeverDefault"=""
+[HKEY_CLASSES_ROOT\*\shell\TakeOwnership\command]
+@="powershell -windowstyle hidden -command \"Start-Process cmd -ArgumentList '/c takeown /f \\\"%1\\\" && icacls \\\"%1\\\" /grant *S-1-3-4:F /t /c /l & pause' -Verb runAs\""
+"IsolatedCommand"="powershell -windowstyle hidden -command \"Start-Process cmd -ArgumentList '/c takeown /f \\\"%1\\\" && icacls \\\"%1\\\" /grant *S-1-3-4:F /t /c /l & pause' -Verb runAs\""
+[HKEY_CLASSES_ROOT\Directory\shell\TakeOwnership]
+@="Take Ownership"
+"AppliesTo"="NOT (System.ItemPathDisplay:=\"C:\\Users\" OR System.ItemPathDisplay:=\"C:\\ProgramData\" OR System.ItemPathDisplay:=\"C:\\Windows\" OR System.ItemPathDisplay:=\"C:\\Windows\\System32\" OR System.ItemPathDisplay:=\"C:\\Program Files\" OR System.ItemPathDisplay:=\"C:\\Program Files (x86)\")"
+"Extended"=-
+"HasLUAShield"=""
+"NoWorkingDirectory"=""
+"Position"="middle"
+[HKEY_CLASSES_ROOT\Directory\shell\TakeOwnership\command]
+@="powershell -windowstyle hidden -command \"$Y = ($null | choice).Substring(1,1); Start-Process cmd -ArgumentList ('/c takeown /f \\\"%1\\\" /r /d ' + $Y + ' && icacls \\\"%1\\\" /grant *S-1-3-4:F /t /c /l /q & pause') -Verb runAs\""
+"IsolatedCommand"="powershell -windowstyle hidden -command \"$Y = ($null | choice).Substring(1,1); Start-Process cmd -ArgumentList ('/c takeown /f \\\"%1\\\" /r /d ' + $Y + ' && icacls \\\"%1\\\" /grant *S-1-3-4:F /t /c /l /q & pause') -Verb runAs\""
+[HKEY_CLASSES_ROOT\Drive\shell\runas]
+@="Take Ownership"
+"Extended"=-
+"HasLUAShield"=""
+"NoWorkingDirectory"=""
+"Position"="middle"
+"AppliesTo"="NOT (System.ItemPathDisplay:=\"C:\\\")"
+[HKEY_CLASSES_ROOT\Drive\shell\runas\command]
+@="cmd.exe /c takeown /f \"%1\\\" /r /d y && icacls \"%1\\\" /grant *S-1-3-4:F /t /c & Pause"
+"IsolatedCommand"="cmd.exe /c takeown /f \"%1\\\" /r /d y && icacls \"%1\\\" /grant *S-1-3-4:F /t /c & Pause"
+"@
+if (-not (Test-Path "C:\_temp")) { New-Item -Path "C:\" -Name "_temp" -ItemType Directory }
+$regContent | Out-File -FilePath $regFilePath -Force
+Start-Process "regedit.exe" -ArgumentList "/s $regFilePath" -WindowStyle Hidden
+Remove-Item -Path $regFilePath -Force
 }
 
 Function Services1 {
-	
-	Start-Sleep -Seconds 2
-    # Set Services to Manual
+	MuchiDMB "Optimizing Services!"
   Set-Service -Name 'AJRouter' -StartupType Disabled -ErrorAction Continue
   Set-Service -Name 'ALG' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'AppIDSvc' -StartupType Manual -ErrorAction Continue
@@ -509,7 +819,6 @@ Function Services1 {
 }
 
 Function Performance1 {
-	Start-Sleep -Seconds 2
 	New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\nvlddmkm\FTS' -Name 'EnableGR535' -PropertyType DWord -Value 0 -Force;
 	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences' -Name 'DirectXUserGlobalSettings' -Value 'SwapEffectUpgradeEnable=1;VRROptimizeEnable=0;';
 	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects' -Name 'VisualFXSetting' -Value 3;
@@ -528,11 +837,11 @@ Function Performance1 {
 	New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games' -Name 'Scheduling Category' -PropertyType String -Value 'High' -Force;
 	Set-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583' -Name 'ValueMax' -Value 0;
 	Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling' -Name 'PowerThrottlingOff' -Value 1;
+	MuchiDMB "Performance Tweaks Applied!"
 }
 
 Function Tasks1 {
-	
-	Start-Sleep -Seconds 2
+	MuchiDMB "Optimizing Scheduled Tasks"
   $scheduledTasks = @(
       "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser",
       "Microsoft\Windows\Application Experience\ProgramDataUpdater",
@@ -553,64 +862,8 @@ Function Tasks1 {
   }
 }
 
-Function 1Drive {
-	
-	Start-Sleep -Seconds 2
-Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
-    if (Test-Path "$($_.FullName)\OneDrive") {
-        if ((Get-ChildItem "$($_.FullName)\OneDrive" -File).Count -gt 0) {
-            exit 6000
-        }
-    }
-}
-
-Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-
-$oneDrivePaths = @(
-    "$env:windir\System32\OneDriveSetup.exe",
-    "$env:windir\SysWOW64\OneDriveSetup.exe"
-)
-
-foreach ($path in $oneDrivePaths) {
-    if (Test-Path $path) {
-        & $path /uninstall | Out-Null
-    }
-}
-
-Get-ChildItem "HKU:\" | Where-Object { $_.Name -match 'S-.*' -or $_.Name -match 'AME_UserHive_[^_]*' } | ForEach-Object {
-    $userKey = $_.Name
-    $volEnvKey = "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BannerStore"
-    if (Test-Path $volEnvKey) {
-        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BannerStore" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers\Handlers" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-    }
-}
-
-Remove-Item -Path "$env:ProgramData\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-
-Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
-    Remove-Item -Path "$($_.FullName)\AppData\Local\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "$($_.FullName)\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "$($_.FullName)\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk" -Force -ErrorAction SilentlyContinue
-}
-
-Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SyncRootManager" | Where-Object { $_.Name -like "*OneDrive*" } | ForEach-Object {
-    Remove-Item -Path $_.PSPath -Force -ErrorAction SilentlyContinue
-}
-
-Get-ScheduledTask | Where-Object { $_.TaskName -match "OneDrive Reporting Task|OneDrive Standalone Update Task" } | ForEach-Object {
-    Unregister-ScheduledTask -TaskName $_.TaskName -Force -ErrorAction SilentlyContinue
-}
-
-
-}
-
 Function SecurityUp1 {
-	Start-Sleep -Seconds 2
-
+	MuchiDMB "Security Updates Only Enabled!"
     $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
     $AURegistryPath = "$WURegistryPath\AU"
 
@@ -623,11 +876,11 @@ Function SecurityUp1 {
 
     Set-ItemProperty -Path $WURegistryPath -Name "DeferFeatureUpdates" -Value 1 -Force
     Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdates" -Value 1 -Force
-    Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force # Set to Semi-Annual Channel (Targeted)
+    Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force
     Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdatesPeriodInDays" -Value 0 -Force
 
     Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 1 -Force
-    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force # Notify for download/install
+    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force
 
     $DriverPolicyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
     if (-not (Test-Path $DriverPolicyPath)) {
@@ -639,27 +892,62 @@ Function SecurityUp1 {
 	
 }
 
-Function cRunAll {
+Function 1Debloat {
+	MuchiDMB "Debloating Microsoft Apps!"
+	$SafeApps = "AAD.brokerplugin|accountscontrol|apprep.chxapp|assignedaccess|asynctext|bioenrollment|capturepicker|cloudexperience|contentdelivery|desktopappinstaller|ecapp|edge|extension|getstarted|immersivecontrolpanel|lockapp|net.native|oobenet|parentalcontrols|PPIProjection|search|sechealth|secureas|shellexperience|startmenuexperience|terminal|vclibs|xaml|XGpuEject"
+	If ($Xbox) {
+		$SafeApps = "$SafeApps|Xbox" 
+}
+	
+	If ($Allapps) {
+		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
+		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
+			ForEach ($RemovedApp in $RemoveApps) {
+				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
+				
+}			ForEach ($RemovedPrApp in $RemovePrApps) {
+				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
+				
+}
+}	Else {
+		$SafeApps = "$SafeApps|$GoodApps"
+		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
+		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
+			ForEach ($RemovedApp in $RemoveApps) {
+				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
+				
+}			ForEach ($RemovedPrApp in $RemovePrApps) {
+				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
+				
+}
+}
+}
+
+Function 111RunAll {
 1SoftwareInstalls
-1Debloat
+1Drive
+WiFiS1
 Ads1
 1DVR
+Game-Mode1
 KBM1
+MPP1
+Owner1
 Services1
 Performance1
 Tasks1
-1Drive
 SecurityUp1
-Start-Sleep Seconds 2
+1Debloat
+#start-sleep Seconds 2
 
 }
 
 
 
-# Functions For Other Buttons
+
+# Functions
 
 Function Activate-Win {
-    $Host.UI.RawUI.WindowTitle = "Muchility - Getting Activation Script"
     
 	
     # Define paths
@@ -743,16 +1031,16 @@ Function cSystem-Repairs {
 }
 
 Function mInstall-Choco {
-	$Host.UI.RawUI.WindowTitle = "Muchility - Installing Choco"
+
     
 	
     # Check if Chocolatey is already installed
     if (Get-Command choco -ErrorAction SilentlyContinue) {
-        Start-Sleep -Seconds 2
+        #start-sleep -Seconds 2
         return  # Exit the function if already installed
     }
     else {
-        Start-Sleep -Seconds 2
+        #start-sleep -Seconds 2
         Set-ExecutionPolicy Bypass -Scope Process -Force
         Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
         return  # Exit the function after installation
@@ -799,7 +1087,7 @@ Function Clean-TempFolders {
 }
 
 Function cUpdate-Drivers {
-    $Host.UI.RawUI.WindowTitle = "Muchility - Updating Drivers"
+
     
 	
     # Define paths and URLs
@@ -859,8 +1147,128 @@ Function cUpdate-Drivers {
     # Step 6: Launch the SDI_auto.bat file
     try {
         Start-Process -FilePath $batchFile.FullName
-		Start-Sleep -Seconds 10
+		#start-sleep -Seconds 10
     } catch {
+    }
+}
+
+Function Create-RestorePoint {
+    Checkpoint-Computer -Description "Before Muchility" -RestorePointType "MODIFY_SETTINGS"
+}
+
+Function Set-RestorePointFrequency {
+    try {
+        $registryPath = "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore"
+        $valueName = "SystemRestorePointCreationFrequency"
+        $valueData = 2
+
+        if (-not (Test-Path $registryPath)) {
+            throw "Registry path $registryPath does not exist."
+        }
+
+        Set-ItemProperty -Path $registryPath -Name $valueName -Value $valueData -Force > $null 2>&1
+    } catch {
+        # Handle failure silently
+    }
+}
+
+Function Check-RestorePointStatus {
+    $vssOutput = vssadmin list shadowstorage
+
+    if ($vssOutput -match "No shadow copies are available") {
+        return $false
+    } else {
+        return $true
+    }
+}
+
+Function Enable-RestorePoints {
+    try {
+        Enable-ComputerRestore -Drive "C:\"  # Modify the drive as needed
+        return $true
+    } catch {
+        return $false
+    }
+}
+
+
+
+
+
+# Home Button Functions 
+
+Function Tweaks1 {
+
+#MuchiDMB "May Freeze! Don't Panic."
+
+
+TweaksForm > $null 2>&1
+
+
+#MuchiDMB "Tweaks Applied!"
+}
+
+Function Activate-Windows {
+
+MuchiDMB "Activating Windows"
+	Activate-Win > $null 2>&1
+}
+
+Function Windows-Update {
+	UpdateForm > $null 2>&1
+}
+
+Function Repair-System {
+
+MuchiDMB "Starting System Repairs!"
+	cSystem-Repairs > $null 2>&1
+}
+
+Function Clear-Temp {
+	Clean-TempFolders > $null 2>&1
+
+MuchiDMB "Temp Files/Folders Cleared"
+
+
+}
+
+Function Update-Drivers {
+
+MuchiDMB "Drivers Updating via SDI"
+	cUpdate-Drivers > $null 2>&1
+}
+
+Function 1Restore {
+	Check-RestorePointStatus
+	Set-RestorePointFrequency
+	Enable-RestorePoints
+	Create-RestorePoint
+}
+
+Function UpdateAll1 {
+    # Check if Chocolatey is installed
+    if (Get-Command choco -ErrorAction SilentlyContinue) {
+        MuchiDMB "Choco is updating all apps"
+        
+        # Enable global confirmation for silent updates
+        choco feature enable -n allowGlobalConfirmation
+        
+        # Update all installed packages with Chocolatey
+        choco upgrade all -force -y
+    } else {
+        MuchiDMB "Choco is missing, Installing..."
+        
+        # Install Chocolatey
+        Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; 
+        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        
+        MuchiDMB "Choco has been installed. Now updating all apps."
+        
+        # Enable global confirmation for silent updates
+        choco feature enable -n allowGlobalConfirmation
+        
+        # Update all installed packages with Chocolatey
+        choco upgrade all -force -y
     }
 }
 
@@ -868,7 +1276,7 @@ Function cUpdate-Drivers {
 
 #Funtion For Dark Mode Message Boxes
 
-Function Show-DarkModeMessageBox {
+Function MuchiDMB {
     param(
         [string]$message
     )
@@ -919,113 +1327,82 @@ Function Show-DarkModeMessageBox {
 }
 
 
+# Windows Update Functions
 
-# Functions aka Buttons
+Function WinUp-Sec {
+    # Define registry paths for Windows Update configurations
+    $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+    $AURegistryPath = "$WURegistryPath\AU"
 
-Function Tweaks1 {
-
-Show-DarkModeMessageBox "May Freeze! Don't Panic."
-
-
-cRunAll > $null 2>&1
-
-
-Show-DarkModeMessageBox "Tweaks Applied!"
-}
-
-Function Activate-Windows {
-
-Show-DarkModeMessageBox "Activating Windows"
-	Activate-Win > $null 2>&1
-}
-
-Function Windows-Update {
-	Win-Sec-Upd > $null 2>&1
-
-Show-DarkModeMessageBox "Security Only Updates Enabled!"
-}
-
-Function Repair-System {
-
-Show-DarkModeMessageBox "Starting System Repairs!"
-	cSystem-Repairs > $null 2>&1
-}
-
-Function Install-Choco {
-	mInstall-Choco > $null 2>&1
-
-Show-DarkModeMessageBox "Choco Installed"
-}
-
-Function Uninstall-Choco {
-	mRemove-Choco > $null 2>&1
-
-Show-DarkModeMessageBox "Choco Uninstalled"
-}
-
-Function Clear-Temp {
-	Clean-TempFolders > $null 2>&1
-
-Show-DarkModeMessageBox "Temp Files/Folders Cleared"
-
-
-}
-
-Function Update-Drivers {
-
-Show-DarkModeMessageBox "Drivers Updating via SDI"
-	cUpdate-Drivers > $null 2>&1
-}
-
-# Helper function to add buttons with custom function links
-Function Add-Button {
-    param (
-        [string]$text,
-        [int]$x,
-        [int]$y,
-        [scriptblock]$function
-    )
-    $button = New-Object System.Windows.Forms.Button
-    $button.Text = $text
-    $button.Size = New-Object System.Drawing.Size($buttonWidth, $buttonHeight)
-    $button.Location = New-Object System.Drawing.Point($x, $y)
-    $button.Add_Click($function)  # Link the function to the button's click event
-    $form.Controls.Add($button)
-}
-
-# Add buttons dynamically with custom functions
-for ($i = 0; $i -lt 8; $i++) {
-    $col = $i % $columns
-    $row = [math]::Floor($i / $columns)
-    $x = ($col * ($buttonWidth + $paddingX)) + $paddingX
-    $y = ($row * ($buttonHeight + $paddingY)) + $paddingY
-    
-    # Button names and corresponding functions
-    $function = switch ($i) {
-        0 { { Tweaks1 } }  # Link Tweaks1 to the first button
-        1 { { Activate-Windows } }
-        2 { { Windows-Update } }
-        3 { { Repair-System } }
-        4 { { Install-Choco } }
-        5 { { Uninstall-Choco } }
-        6 { { Clear-Temp } }
-        7 { { Update-Drivers } }
+    # Ensure the registry keys exist
+    if (-not (Test-Path $WURegistryPath)) {
+        New-Item -Path $WURegistryPath -Force | Out-Null
+    }
+    if (-not (Test-Path $AURegistryPath)) {
+        New-Item -Path $AURegistryPath -Force | Out-Null
     }
 
-    # Button text (name for each button)
-    $buttonName = switch ($i) {
-        0 { "Run Tweaks" }
-        1 { "Activate Windows" }
-        2 { "Windows Update" }
-        3 { "Repair System" }
-        4 { "Install Choco" }
-        5 { "Uninstall Choco" }
-        6 { "Clear Temp" }
-        7 { "Update Drivers" }
-    }
+    # Disable automatic updates except for security updates
+    Set-ItemProperty -Path $WURegistryPath -Name "DeferFeatureUpdates" -Value 1 -Force
+    Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdates" -Value 1 -Force
+    Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force # Semi-Annual Channel (Targeted)
+    Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdatesPeriodInDays" -Value 0 -Force
 
-    Add-Button -text $buttonName -x $x -y $y -function $function
+    # Configure AU settings for manual control
+    Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 1 -Force
+    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force # Notify for download/install
+
+    # Disable driver updates via Windows Update
+    $DriverPolicyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
+    if (-not (Test-Path $DriverPolicyPath)) {
+        New-Item -Path $DriverPolicyPath -Force | Out-Null
+    }
+    Set-ItemProperty -Path $DriverPolicyPath -Name "SearchOrderConfig" -Value 0 -Force
+
+    # Optimize Update Settings for Security Updates Only
+    Start-Process -FilePath "C:\Windows\System32\schtasks.exe" -ArgumentList "/Delete /TN \"\Microsoft\Windows\WindowsUpdate\Automatic App Update\" /F" -NoNewWindow -Wait
 }
 
-# Display the form
-[void]$form.ShowDialog()
+Function WinUp-Dis {
+    # Disable Windows Update Services
+    Stop-Service -Name wuauserv -Force
+    Set-Service -Name wuauserv -StartupType Manual
+
+    # Disable all automatic updates via registry
+    $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+    $AURegistryPath = "$WURegistryPath\AU"
+
+    if (-not (Test-Path $WURegistryPath)) {
+        New-Item -Path $WURegistryPath -Force | Out-Null
+    }
+    if (-not (Test-Path $AURegistryPath)) {
+        New-Item -Path $AURegistryPath -Force | Out-Null
+    }
+
+    Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 1 -Force
+    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 1 -Force # Never check for updates
+}
+
+Function WinUp-Ena {
+    # Enable Windows Update Services
+    Start-Service -Name wuauserv
+    Set-Service -Name wuauserv -StartupType Automatic
+
+    # Enable all automatic updates via registry
+    $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+    $AURegistryPath = "$WURegistryPath\AU"
+
+    if (-not (Test-Path $WURegistryPath)) {
+        New-Item -Path $WURegistryPath -Force | Out-Null
+    }
+    if (-not (Test-Path $AURegistryPath)) {
+        New-Item -Path $AURegistryPath -Force | Out-Null
+    }
+
+    Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 0 -Force
+    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 4 -Force # Auto download and install updates
+}
+
+
+
+MuchiForm
