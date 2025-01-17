@@ -82,42 +82,39 @@ Function MuchiForm {
 
 
 Function TweaksForm {
-
     # Load required assembly
     Add-Type -AssemblyName System.Windows.Forms
 
     # Define button parameters
     $buttonWidth = 120
-	$buttonHeight = 40
-	$paddingX = 20
-	$paddingY = 20
-	$columns = 3
-	$rows = 5  # Update this to 8 rows to accommodate all buttons
+    $buttonHeight = 40
+    $paddingX = 20
+    $paddingY = 20
+    $columns = 5
+    $rows = 3  # Adjust rows to fit your total buttons
 
-	# Calculate window size based on buttons
-	$formWidth = ($columns * ($buttonWidth + $paddingX)) + $paddingX
-	$formHeight = ($rows * ($buttonHeight + $paddingY)) + $paddingY + 40
+    # Calculate window size based on buttons
+    $formWidth = ($columns * ($buttonWidth + $paddingX)) + $paddingX
+    $formHeight = ($rows * ($buttonHeight + $paddingY)) + $paddingY + 40
 
-	# Create the tweaks form
-	$tweaksForm = New-Object System.Windows.Forms.Form
-	$tweaksForm.Text = "Muchility - Tweaks"
-	$tweaksForm.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
-	$tweaksForm.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
+    # Create a new form
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Muchility - Tweaks"
+    $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
 
     # Apply dark mode colors
-    $tweaksForm.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-    $tweaksForm.ForeColor = [System.Drawing.Color]::White
+    $form.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
+    $form.ForeColor = [System.Drawing.Color]::White
 
     # Make the form fixed size (no resizing allowed)
-    $tweaksForm.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
-    $tweaksForm.MaximizeBox = $false
-    $tweaksForm.MinimizeBox = $false
-    $tweaksForm.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
+    $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+    $form.MaximizeBox = $false
+    $form.MinimizeBox = $false
+    $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 
-    # Helper function to add buttons with custom function links
+    # Helper function to add buttons
     Function Add-Button {
         param (
-            [System.Windows.Forms.Form]$form,
             [string]$text,
             [int]$x,
             [int]$y,
@@ -127,23 +124,11 @@ Function TweaksForm {
         $button.Text = $text
         $button.Size = New-Object System.Drawing.Size($buttonWidth, $buttonHeight)
         $button.Location = New-Object System.Drawing.Point($x, $y)
-
-        # Adjust font size to fit the text within the button
-        $button.Font = New-Object System.Drawing.Font("Arial", 8)
-        $button.AutoSize = $false
-        $button.MaximumSize = New-Object System.Drawing.Size($buttonWidth, $buttonHeight)
-
-        while ($button.PreferredSize.Width > $button.Width) {
-            $button.Font = New-Object System.Drawing.Font($button.Font.Name, $button.Font.Size - 1)
-        }
-
-        # Add the button click event handler, directly invoking the function
         $button.Add_Click($function)
-
         $form.Controls.Add($button)
     }
 
-    # Define the button names and corresponding functions directly as scriptblocks
+    # Button definitions for TweakForm
     $tweakButtons = @(
         @{ Name = "Block Device Installers"; Function = { 1SoftwareInstalls } },
         @{ Name = "Delete OneDrive"; Function = { 1Drive } },
@@ -157,32 +142,28 @@ Function TweaksForm {
         @{ Name = "Performance Tweaks"; Function = { Performance1 } },
         @{ Name = "Scheduled Tasks"; Function = { Tasks1 } },
         @{ Name = "Take Ownership"; Function = { Owner1 } },
-        @{ Name = "Security Updates Only"; Function = { SecurityUp1 } }
-		@{ Name = "Debloater"; Function = { 1Debloat } }
-		@{ Name = "Run All Tweaks"; Function = { 111RunAll } }
+        @{ Name = "Security Updates Only"; Function = { SecurityUp1 } },
+        @{ Name = "Debloater"; Function = { 1Debloat } },
+        @{ Name = "Run All Tweaks"; Function = { 111RunAll } }
     )
 
     # Add buttons dynamically
-    $col = 0
-    $row = 0
-    foreach ($button in $tweakButtons) {
+    for ($i = 0; $i -lt $tweakButtons.Count; $i++) {
+        $col = $i % $columns
+        $row = [math]::Floor($i / $columns)
         $x = ($col * ($buttonWidth + $paddingX)) + $paddingX
         $y = ($row * ($buttonHeight + $paddingY)) + $paddingY
 
-        # Create and add the button with the correct function
-        Add-Button -form $tweaksForm -text $button.Name -x $x -y $y -function $button.Function
-
-        # Update row/column positions
-        $col++
-        if ($col -eq $columns) {
-            $col = 0
-            $row++
-        }
+        $button = $tweakButtons[$i]
+        Add-Button -text $button.Name -x $x -y $y -function $button.Function
     }
 
-    # Show the TweaksForm
-    $tweaksForm.ShowDialog()
+    # Display the form
+    [void]$form.ShowDialog()
 }
+
+
+
 
 
 
@@ -1199,13 +1180,11 @@ Function Enable-RestorePoints {
 
 Function Tweaks1 {
 
-#MuchiDMB "May Freeze! Don't Panic."
 
 
 TweaksForm > $null 2>&1
 
 
-#MuchiDMB "Tweaks Applied!"
 }
 
 Function Activate-Windows {
