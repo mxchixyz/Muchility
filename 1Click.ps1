@@ -31,181 +31,67 @@ Function 1SoftwareInstalls {
 
         # Set SearchOrderConfig registry key
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0
+}
 
-        Write-Host "All automatic installations, updates, and OEM app downloads have been blocked."
-	Start-Sleep -Seconds 2
+Function 1Drive {
+Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
+    if (Test-Path "$($_.FullName)\OneDrive") {
+        if ((Get-ChildItem "$($_.FullName)\OneDrive" -File).Count -gt 0) {
+            exit 6000
+        }
+    }
+}
+
+Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+
+$oneDrivePaths = @(
+    "$env:windir\System32\OneDriveSetup.exe",
+    "$env:windir\SysWOW64\OneDriveSetup.exe"
+)
+
+foreach ($path in $oneDrivePaths) {
+    if (Test-Path $path) {
+        & $path /uninstall | Out-Null
+    }
+}
+
+Get-ChildItem "HKU:\" | Where-Object { $_.Name -match 'S-.*' -or $_.Name -match 'AME_UserHive_[^_]*' } | ForEach-Object {
+    $userKey = $_.Name
+    $volEnvKey = "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BannerStore"
+    if (Test-Path $volEnvKey) {
+        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BannerStore" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers\Handlers" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
+    }
+}
+
+Remove-Item -Path "$env:ProgramData\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+
+Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
+    Remove-Item -Path "$($_.FullName)\AppData\Local\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "$($_.FullName)\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path "$($_.FullName)\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk" -Force -ErrorAction SilentlyContinue
+}
+
+Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SyncRootManager" | Where-Object { $_.Name -like "*OneDrive*" } | ForEach-Object {
+    Remove-Item -Path $_.PSPath -Force -ErrorAction SilentlyContinue
+}
+
+Get-ScheduledTask | Where-Object { $_.TaskName -match "OneDrive Reporting Task|OneDrive Standalone Update Task" } | ForEach-Object {
+    Unregister-ScheduledTask -TaskName $_.TaskName -Force -ErrorAction SilentlyContinue
 }
 
 
-Function 1Debloat {
-	Write-Host "Removing Unneeded Apps!"
-	Start-Sleep -Seconds 2
-	$SafeApps = "AAD.brokerplugin|accountscontrol|apprep.chxapp|assignedaccess|asynctext|bioenrollment|capturepicker|cloudexperience|contentdelivery|desktopappinstaller|ecapp|edge|extension|getstarted|immersivecontrolpanel|lockapp|net.native|oobenet|parentalcontrols|PPIProjection|search|sechealth|secureas|shellexperience|startmenuexperience|terminal|vclibs|xaml|XGpuEject"
-	If ($Xbox) {
-		$SafeApps = "$SafeApps|Xbox" 
-}
-	
-	If ($Allapps) {
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
-}
-}	Else {
-		$SafeApps = "$SafeApps|$GoodApps"
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
-}
-}
 }
 
-
-Function 1Annoyances {
-	clear-host
-	Write-Host "Disabling, Preventing & Removing Annoyances!"
-	Start-Sleep -Seconds 2
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Communications" -Name "ConfigureChatAutoInstall" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Chat" -Name "ChatIcon" -PropertyType DWord -Value 3 -Force
-	New-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\BootAnimation" -Name "DisableStartupSound" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\EditionOverrides" -Name "UserSetting_DisableStartupSound" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKCU:\Control Panel\Accessibility\SlateLaunch" -Name "ATapp" -PropertyType String -Value "" -Force
-	New-ItemProperty -Path "HKCU:\Control Panel\Accessibility\SlateLaunch" -Name "LaunchAT" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKCU:\Software\Microsoft\Ease of Access" -Name "selfvoice" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKCU:\Software\Microsoft\Ease of Access" -Name "selfscan" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKCU:\Control Panel\Accessibility" -Name "Sound on Activation" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKCU:\Control Panel\Accessibility" -Name "Warning Sounds" -PropertyType DWord -Value 0 -Force	
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Appx" -Name "AllowAutomaticAppArchiving" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" -Name "MaintenanceDisabled" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "DisableAutomaticRestartSignOn" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\System\ControlSet001\Control\Network\SharedAccessConnection" -Name "EnableControl" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\Start" -Name "ConfigureStartPins" -PropertyType String -Value '{ "pinnedList": [] }' -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\Start" -Name "ConfigureStartPins_ProviderSet" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\Start" -Name "ConfigureStartPins_WinningProvider" -PropertyType String -Value "B5292708-1619-419B-9923-E5D9F3925E71" -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\providers\B5292708-1619-419B-9923-E5D9F3925E71\default\Device\Start" -Name "ConfigureStartPins" -PropertyType String -Value '{ "pinnedList": [] }' -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\providers\B5292708-1619-419B-9923-E5D9F3925E71\default\Device\Start" -Name "ConfigureStartPins_LastWrite" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WorkplaceJoin" -Name "BlockAADWorkplaceJoin" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\Windows Search" -Name "AllowCortana" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot" -Name "TurnOffWindowsCopilot" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\OneDrive" -Name "KFMBlockOptIn" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\PushToInstall" -Name "DisablePushToInstall" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\CloudContent" -Name "DisableConsumerAccountStateContent" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\CloudContent" -Name "DisableCloudOptimizedContent" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\BitLocker" -Name "PreventDeviceEncryption" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\EnhancedStorageDevices" -Name "TCGSecurityActivationDisabled" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\Update" -Name "ExcludeWUDriversInQualityUpdate" -PropertyType DWord -Value 1 -Force -BackgroundColor Black -NoNewline
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Update" -Name "ExcludeWUDriversInQualityUpdate" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "ExcludeWUDriversInQualityUpdate" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\Update\ExcludeWUDriversInQualityUpdate" -Name "value" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "DontSearchWindowsUpdate" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration" -Name "Status" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SYSTEM\Maps" -Name "AutoUpdateEnabled" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "DoNotShowFeedbackNotifications" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsInkWorkspace" -Name "AllowWindowsInkWorkspace" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\StorageSense" -Name "AllowStorageSenseGlobal" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" -Name "LetAppsRunInBackground" -PropertyType DWord -Value 2 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\NewsAndInterests\AllowNewsAndInterests" -Name "value" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -PropertyType DWord -Value 1 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Dsh" -Name "AllowNewsAndInterests" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -PropertyType DWord -Value 0 -Force
-	New-ItemProperty -Path "HKCU:\Control Panel\TimeDate" -Name "DstNotification" -PropertyType DWord -Value 0 -Force
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Value "Deny" -Force
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SystemSettings\AccountNotifications" -Name "EnableAccountNotifications" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\VoiceActivation\UserPreferenceForAllApps" -Name "AgentActivationEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Speech_OneCore\Settings\VoiceActivation\UserPreferenceForAllApps" -Name "AgentActivationLastUsed" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync" -Name "Value" -Value "Deny"
-	Set-ItemProperty -Path "HKCU:\Control Panel\International\User Profile" -Name "HttpAcceptLanguageOptOut" -Value 1
-	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\EdgeUI" -Name "DisableMFUTracking" -Value 1
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitInkCollection" -Value 1
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization" -Name "RestrictImplicitTextCollection" -Value 1
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore" -Name "HarvestContacts" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Personalization\Settings" -Name "AcceptedPrivacyPolicy" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Name "NumberOfSIUFInPeriod" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Siuf\Rules" -Name "PeriodInNanoSeconds" -Value "-"
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Value 1
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Windows" -Name "LegacyDefaultPrinterMode" -Value 1
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\TabletTip\EmbeddedInkControl" -Name "EnableInkingWithTouch" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "LockScreenToastEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" -Name "NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" -Name "NOC_GLOBAL_SETTING_ALLOW_TOASTS_ABOVE_LOCK" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" -Name "NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance" -Name "Enabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\windows.immersivecontrolpanel_cw5n1h2txyewy!microsoft.windows.immersivecontrolpanel" -Name "Enabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.CapabilityAccess" -Name "Enabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.StartupApp" -Name "Enabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" -Name "ScoobeSystemSettingEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SmartActionPlatform\SmartClipboard" -Name "Disabled" -Value 1
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\input" -Name "IsInputAppPreloadEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Dsh" -Name "IsPrelaunchEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\WindowsCopilot" -Name "TurnOffWindowsCopilot" -Value 1
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Office\16.0\Outlook\Options\General" -Name "HideNewOutlookToggle" -Value 0
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "HibernateEnabled" -Value 0
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "HibernateEnabledDefault" -Value 0
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Value 0
-	Set-ItemProperty -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation" -Name "Value" -Value "Deny" -Force
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsDynamicSearchBoxEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsDeviceSearchHistoryEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "SafeSearchMode" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsAADCloudSearchEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings" -Name "IsMSACloudSearchEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\input\Settings" -Name "IsVoiceTypingKeyEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\input\Settings" -Name "InsightsEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\TabletTip\1.7" -Name "EnableAutoShiftEngage" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\TabletTip\1.7" -Name "EnableKeyAudioFeedback" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\TabletTip\1.7" -Name "EnableDoubleTapSpace" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\TabletTip\1.7" -Name "IsKeyBackgroundEnabled" -Value 0
-	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Lighting" -Name "UseSystemAccentColor" -Value 0
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -Value 1
-	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoStartMenuMFUprogramsList" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "NoInstrumentation" -ErrorAction SilentlyContinue
-	Remove-ItemProperty -Path "HKCU:\Software\Classes\CLSID\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}" -Name "System.IsPinnedToNameSpaceTree"
-	Remove-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name "OneDriveSetup"
-	Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\DevHomeUpdate" -Force -ErrorAction SilentlyContinue
-	Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\Orchestrator\UScheduler_Oobe\OutlookUpdate" -Force -ErrorAction SilentlyContinue
-	Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Force
-	Remove-Item -Path "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Force
-	Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}" -Force
-}
-
-
-Function 1Wifi-Sense {
-    clear-host
-    Write-Host "Disabling Wi-Fi Sense!"
-    Start-Sleep -Seconds 2
+Function WiFiS1 {
     New-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -PropertyType DWord -Value 0 -Force
     New-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -PropertyType DWord -Value 0 -Force
 }
 
-
 Function Ads1 {
-    clear-host
-    Write-Host "Disabling Advertising!"
-    Start-Sleep -Seconds 2
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "FeatureManagementEnabled" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Value 0
@@ -228,11 +114,7 @@ Function Ads1 {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SystemPaneSuggestionsEnabled" -Value 0
 }
 
-
 Function 1DVR {
-    clear-host
-    Write-Host "Setting GameDVR Settings!"
-    Start-Sleep -Seconds 2
     Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "UseNexusForGameBarEnabled" -Value 0
     New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -PropertyType DWord -Value 0 -Force
@@ -274,11 +156,11 @@ Function 1DVR {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "MicrophoneGain" -Value ([byte[]]@(0x10, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
 }
 
+Function Game-Mode1 {
+	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 1;
+}
 
 Function KBM1 {
-    Clear-Host
-    Write-Host 'Keyboard & Mouse Tweaks!'
-    Start-Sleep -Seconds 2
     Set-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\DWM' -Name 'UseDpiScaling' -Value 0
     New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\Keyboard Response' -Name 'Flags' -PropertyType String -Value '2' -Force
     New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\Keyboard Response' -Name 'AutoRepeatRate' -PropertyType String -Value '0' -Force
@@ -288,9 +170,6 @@ Function KBM1 {
     New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\MouseKeys' -Name 'TimeToMaximumSpeed' -PropertyType String -Value '3000' -Force
     New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\StickyKeys' -Name 'Flags' -PropertyType String -Value '2' -Force
     New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\ToggleKeys' -Name 'Flags' -PropertyType String -Value '34' -Force
-    New-ItemProperty -Path 'HKU\.DEFAULT\Control Panel\Mouse' -Name 'MouseSpeed' -PropertyType String -Value '0' -Force
-    New-ItemProperty -Path 'HKU\.DEFAULT\Control Panel\Mouse' -Name 'MouseThreshold1' -PropertyType String -Value '0' -Force
-    New-ItemProperty -Path 'HKU\.DEFAULT\Control Panel\Mouse' -Name 'MouseThreshold2' -PropertyType String -Value '0' -Force
     New-ItemProperty -Path 'HKCU:\Control Panel\Mouse' -Name 'MouseSpeed' -PropertyType String -Value '0' -Force
     New-ItemProperty -Path 'HKCU:\Control Panel\Mouse' -Name 'MouseThreshold1' -PropertyType String -Value '0' -Force
     New-ItemProperty -Path 'HKCU:\Control Panel\Mouse' -Name 'MouseThreshold2' -PropertyType String -Value '0' -Force
@@ -301,31 +180,67 @@ Function KBM1 {
     Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters' -Name 'MouseDataQueueSize' -Value 30 -Type DWord
 }
 
-
-Function Misc1 {
-	Write-Host "Misc Tweaks!"
-	Start-Sleep -Seconds 2
-	Set-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Power\PowerSettings\2a737441-1930-4402-8d77-b2bebba308a3\0853a681-27c8-4100-a2fd-82013e970683' -Name 'Attributes' -Value 2;
-	Set-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Power\PowerSettings\2a737441-1930-4402-8d77-b2bebba308a3\d4e98f31-5ffe-4ce1-be31-1b38b384c009' -Name 'Attributes' -Value 2;
-	New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\ImmersiveShell' -Name 'TabletMode' -PropertyType DWord -Value 0 -Force;
-	New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\ImmersiveShell' -Name 'SignInMode' -PropertyType DWord -Value 1 -Force;
-	New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -PropertyType DWord -Value 1 -Force;
-	New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\HighContrast' -Name 'Flags' -PropertyType String -Value '4194' -Force;
-	New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\SoundSentry' -Name 'Flags' -PropertyType String -Value '0' -Force;
-	New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\SoundSentry' -Name 'FSTextEffect' -PropertyType String -Value '0' -Force;
-	New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\SoundSentry' -Name 'TextEffect' -PropertyType String -Value '0' -Force;
-	New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\SoundSentry' -Name 'WindowsEffect' -PropertyType String -Value '0' -Force;
-	New-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\CabinetState' -Name 'FullPath' -PropertyType DWord -Value 1 -Force;
-	New-ItemProperty -Path 'HKCU:\Software\Microsoft\Multimedia\Audio' -Name 'UserDuckingPreference' -PropertyType DWord -Value 3 -Force;
-	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\VideoSettings' -Name 'VideoQualityOnBattery' -Value 1;
+Function MPP1 {
+    $downloadUrl = "https://github.com/Muchiiix/Muchility/raw/refs/heads/main/Muchi.pow"
+    $destinationPath = "C:\_temp\Muchi.pow"
+    $targetDir = Split-Path -Path $destinationPath
+    if (!(Test-Path -Path $targetDir)) {
+        New-Item -ItemType Directory -Path $targetDir -Force
+    }
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $destinationPath
+    powercfg -import $destinationPath
+    $schemes = powercfg /l
+    $schemeGuid = $schemes | Select-String -Pattern "Muchi" | ForEach-Object { $_.ToString().Split()[3] }
+    if ($schemeGuid) {
+        powercfg /s $schemeGuid
+    } else {
+    }
 }
 
+Function Owner1 {
+    $regFilePath = "C:\_temp\takeownership.reg"
+    $regContent = @"
+Windows Registry Editor Version 5.00
+; Adds "Take Ownership" to the Right Click Context Menu
+[-HKEY_CLASSES_ROOT\*\shell\TakeOwnership]
+[-HKEY_CLASSES_ROOT\*\shell\runas]
+[HKEY_CLASSES_ROOT\*\shell\TakeOwnership]
+@="Take Ownership"
+"Extended"=-
+"HasLUAShield"=""
+"NoWorkingDirectory"=""
+"NeverDefault"=""
+[HKEY_CLASSES_ROOT\*\shell\TakeOwnership\command]
+@="powershell -windowstyle hidden -command \"Start-Process cmd -ArgumentList '/c takeown /f \\\"%1\\\" && icacls \\\"%1\\\" /grant *S-1-3-4:F /t /c /l & pause' -Verb runAs\""
+"IsolatedCommand"="powershell -windowstyle hidden -command \"Start-Process cmd -ArgumentList '/c takeown /f \\\"%1\\\" && icacls \\\"%1\\\" /grant *S-1-3-4:F /t /c /l & pause' -Verb runAs\""
+[HKEY_CLASSES_ROOT\Directory\shell\TakeOwnership]
+@="Take Ownership"
+"AppliesTo"="NOT (System.ItemPathDisplay:=\"C:\\Users\" OR System.ItemPathDisplay:=\"C:\\ProgramData\" OR System.ItemPathDisplay:=\"C:\\Windows\" OR System.ItemPathDisplay:=\"C:\\Windows\\System32\" OR System.ItemPathDisplay:=\"C:\\Program Files\" OR System.ItemPathDisplay:=\"C:\\Program Files (x86)\")"
+"Extended"=-
+"HasLUAShield"=""
+"NoWorkingDirectory"=""
+"Position"="middle"
+[HKEY_CLASSES_ROOT\Directory\shell\TakeOwnership\command]
+@="powershell -windowstyle hidden -command \"$Y = ($null | choice).Substring(1,1); Start-Process cmd -ArgumentList ('/c takeown /f \\\"%1\\\" /r /d ' + $Y + ' && icacls \\\"%1\\\" /grant *S-1-3-4:F /t /c /l /q & pause') -Verb runAs\""
+"IsolatedCommand"="powershell -windowstyle hidden -command \"$Y = ($null | choice).Substring(1,1); Start-Process cmd -ArgumentList ('/c takeown /f \\\"%1\\\" /r /d ' + $Y + ' && icacls \\\"%1\\\" /grant *S-1-3-4:F /t /c /l /q & pause') -Verb runAs\""
+[HKEY_CLASSES_ROOT\Drive\shell\runas]
+@="Take Ownership"
+"Extended"=-
+"HasLUAShield"=""
+"NoWorkingDirectory"=""
+"Position"="middle"
+"AppliesTo"="NOT (System.ItemPathDisplay:=\"C:\\\")"
+[HKEY_CLASSES_ROOT\Drive\shell\runas\command]
+@="cmd.exe /c takeown /f \"%1\\\" /r /d y && icacls \"%1\\\" /grant *S-1-3-4:F /t /c & Pause"
+"IsolatedCommand"="cmd.exe /c takeown /f \"%1\\\" /r /d y && icacls \"%1\\\" /grant *S-1-3-4:F /t /c & Pause"
+"@
+if (-not (Test-Path "C:\_temp")) { New-Item -Path "C:\" -Name "_temp" -ItemType Directory }
+$regContent | Out-File -FilePath $regFilePath -Force
+Start-Process "regedit.exe" -ArgumentList "/s $regFilePath" -WindowStyle Hidden
+Remove-Item -Path $regFilePath -Force
+}
 
 Function Services1 {
-	Clear-Host
-  	Write-Host "Optimizing Services!"
-	Start-Sleep -Seconds 2
-    # Set Services to Manual
   Set-Service -Name 'AJRouter' -StartupType Disabled -ErrorAction Continue
   Set-Service -Name 'ALG' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'AppIDSvc' -StartupType Manual -ErrorAction Continue
@@ -336,7 +251,7 @@ Function Services1 {
   Set-Service -Name 'Appinfo' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'AssignedAccessManagerSvc' -StartupType Disabled -ErrorAction Continue
   Set-Service -Name 'AudioEndpointBuilder' -StartupType Automatic -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'AudioSrv' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'Audiosrv' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'AxInstSV' -StartupType Manual -ErrorAction Continue
@@ -347,7 +262,7 @@ Function Services1 {
   Set-Service -Name 'BrokerInfrastructure' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'Browser' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'BthAvctpSvc' -StartupType Automatic -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'BthHFSrv' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'CDPSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'CDPUserSvc_*' -StartupType Automatic -ErrorAction Continue
@@ -358,7 +273,7 @@ Function Services1 {
   Set-Service -Name 'ConsentUxUserSvc_*' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'CoreMessagingRegistrar' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'CredentialEnrollmentManagerUserSvc_*' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'CryptSvc' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'CscService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'DPS' -StartupType Automatic -ErrorAction Continue
@@ -369,7 +284,7 @@ Function Services1 {
   Set-Service -Name 'DeviceAssociationService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'DeviceInstall' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'DevicePickerUserSvc_*' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'DevicesFlowUserSvc_*' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'Dhcp' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'DiagTrack' -StartupType Disabled -ErrorAction Continue
@@ -380,7 +295,7 @@ Function Services1 {
   Set-Service -Name 'Dnscache' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'DoSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'DsSvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'DsmSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'DusmSvc' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'EFS' -StartupType Manual -ErrorAction Continue
@@ -391,7 +306,7 @@ Function Services1 {
   Set-Service -Name 'FDResPub' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'Fax' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'FontCache' -StartupType Automatic -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'FrameServer' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'FrameServerMonitor' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'GraphicsPerfSvc' -StartupType Manual -ErrorAction Continue
@@ -402,7 +317,7 @@ Function Services1 {
   Set-Service -Name 'IKEEXT' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'InstallService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'InventorySvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'IpxlatCfgSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'KeyIso' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'KtmRm' -StartupType Manual -ErrorAction Continue
@@ -413,7 +328,7 @@ Function Services1 {
   Set-Service -Name 'LxpSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'MSDTC' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'MSiSCSI' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'MapsBroker' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'McpManagementService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'MessagingService_*' -StartupType Manual -ErrorAction Continue
@@ -424,7 +339,7 @@ Function Services1 {
   Set-Service -Name 'NPSMSvc_*' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'NaturalAuthentication' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'NcaSvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'NcbService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'NcdAutoSetup' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'NetSetupSvc' -StartupType Manual -ErrorAction Continue
@@ -435,7 +350,7 @@ Function Services1 {
   Set-Service -Name 'NgcSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'NlaSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'OneSyncSvc_*' -StartupType Automatic -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'P9RdrService_*' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'PNRPAutoReg' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'PNRPsvc' -StartupType Manual -ErrorAction Continue
@@ -446,7 +361,7 @@ Function Services1 {
   Set-Service -Name 'PhoneSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'PimIndexMaintenanceSvc_*' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'PlugPlay' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'PolicyAgent' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'Power' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'PrintNotify' -StartupType Manual -ErrorAction Continue
@@ -457,7 +372,7 @@ Function Services1 {
   Set-Service -Name 'RasAuto' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'RasMan' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'RemoteAccess' -StartupType Disabled -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'RemoteRegistry' -StartupType Disabled -ErrorAction Continue
   Set-Service -Name 'RetailDemo' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'RmSvc' -StartupType Manual -ErrorAction Continue
@@ -468,7 +383,7 @@ Function Services1 {
   Set-Service -Name 'SCardSvr' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'SDRSVC' -StartupType Manual -ErrorAction Continue 
   Set-Service -Name 'SEMgrSvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'SENS' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'SNMPTRAP' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'SNMPTrap' -StartupType Manual -ErrorAction Continue
@@ -479,7 +394,7 @@ Function Services1 {
   Set-Service -Name 'SecurityHealthService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'Sense' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'SensorDataService' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'SensorService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'SensrSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'SessionEnv' -StartupType Manual -ErrorAction Continue
@@ -490,7 +405,7 @@ Function Services1 {
   Set-Service -Name 'SmsRouter' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'Spooler' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'SstpSvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'StateRepository' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'StiSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'StorSvc' -StartupType Manual -ErrorAction Continue
@@ -501,7 +416,7 @@ Function Services1 {
   Set-Service -Name 'TermService' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'TextInputManagementService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'Themes' -StartupType Automatic -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'TieringEngineService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'TimeBroker' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'TimeBrokerSvc' -StartupType Manual -ErrorAction Continue
@@ -512,7 +427,7 @@ Function Services1 {
   Set-Service -Name 'UI0Detect' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'UdkUserSvc_*' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'UevAgentService' -StartupType Disabled -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'UmRdpService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'UnistoreSvc_*' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'UserDataSvc_*' -StartupType Manual -ErrorAction Continue
@@ -523,7 +438,7 @@ Function Services1 {
   Set-Service -Name 'VSS' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'VacSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'VaultSvc' -StartupType Automatic -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'W32Time' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'WEPHOSTSVC' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'WFDSConMgrSvc' -StartupType Manual -ErrorAction Continue
@@ -534,7 +449,7 @@ Function Services1 {
   Set-Service -Name 'WSearch' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'WaaSMedicSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'WalletService' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'WarpJITSvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'WbioSrvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'Wcmsvc' -StartupType Automatic -ErrorAction Continue
@@ -545,7 +460,7 @@ Function Services1 {
   Set-Service -Name 'WebClient' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'Wecsvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'WerSvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'WiaRpc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'WinDefend' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'WinHttpAutoProxySvc' -StartupType Manual -ErrorAction Continue
@@ -556,7 +471,7 @@ Function Services1 {
   Set-Service -Name 'WpnService' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'WpnUserService_*' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'WwanSvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'XblAuthManager' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'XblGameSave' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'XboxGipSvc' -StartupType Manual -ErrorAction Continue
@@ -567,7 +482,7 @@ Function Services1 {
   Set-Service -Name 'cbdhsvc_*' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'cloudidsvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'dcsvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'defragsvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'diagnosticshub.standardcollector.service' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'diagsvc' -StartupType Manual -ErrorAction Continue
@@ -578,7 +493,7 @@ Function Services1 {
   Set-Service -Name 'embeddedmode' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'fdPHost' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'fhsvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'gpsvc' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'hidserv' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'icssvc' -StartupType Manual -ErrorAction Continue
@@ -589,7 +504,7 @@ Function Services1 {
   Set-Service -Name 'mpssvc' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'msiserver' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'netprofm' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'nsi' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'p2pimsvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'p2psvc' -StartupType Manual -ErrorAction Continue
@@ -600,7 +515,7 @@ Function Services1 {
   Set-Service -Name 'smphost' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'spectrum' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'sppsvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'ssh-agent' -StartupType Disabled -ErrorAction Continue
   Set-Service -Name 'svsvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'swprv' -StartupType Manual -ErrorAction Continue
@@ -611,7 +526,7 @@ Function Services1 {
   Set-Service -Name 'vds' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'vm3dservice' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'vmicguestinterface' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'vmicheartbeat' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'vmickvpexchange' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'vmicrdv' -StartupType Manual -ErrorAction Continue
@@ -622,7 +537,7 @@ Function Services1 {
   Set-Service -Name 'vmvss' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'wbengine' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'wcncsvc' -StartupType Manual -ErrorAction Continue
-  Clear-Host
+  
   Set-Service -Name 'webthreatdefsvc' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'webthreatdefusersvc_*' -StartupType Automatic -ErrorAction Continue
   Set-Service -Name 'wercplsupport' -StartupType Manual -ErrorAction Continue
@@ -634,10 +549,7 @@ Function Services1 {
   Set-Service -Name 'wudfsvc' -StartupType Manual -ErrorAction Continue
 }
 
-
 Function Performance1 {
-	Write-Host "Performance Tweaks!"
-	Start-Sleep -Seconds 2
 	New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\nvlddmkm\FTS' -Name 'EnableGR535' -PropertyType DWord -Value 0 -Force;
 	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences' -Name 'DirectXUserGlobalSettings' -Value 'SwapEffectUpgradeEnable=1;VRROptimizeEnable=0;';
 	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects' -Name 'VisualFXSetting' -Value 3;
@@ -658,11 +570,7 @@ Function Performance1 {
 	Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling' -Name 'PowerThrottlingOff' -Value 1;
 }
 
-
 Function Tasks1 {
-	Clear-Host
-  	Write-Host "Scheduled Tasks!"
-	Start-Sleep -Seconds 2
   $scheduledTasks = @(
       "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser",
       "Microsoft\Windows\Application Experience\ProgramDataUpdater",
@@ -683,70 +591,7 @@ Function Tasks1 {
   }
 }
 
-
-Function 1Drive {
-	Clear-Host
-  	Write-Host "Deleting OneDrive!"
-	Start-Sleep -Seconds 2
-Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
-    if (Test-Path "$($_.FullName)\OneDrive") {
-        if ((Get-ChildItem "$($_.FullName)\OneDrive" -File).Count -gt 0) {
-            Write-Host "Not stripping OneDrive as OneDrive files exist, exiting..."
-            exit 6000
-        }
-    }
-}
-
-Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-
-$oneDrivePaths = @(
-    "$env:windir\System32\OneDriveSetup.exe",
-    "$env:windir\SysWOW64\OneDriveSetup.exe"
-)
-
-foreach ($path in $oneDrivePaths) {
-    if (Test-Path $path) {
-        & $path /uninstall | Out-Null
-    }
-}
-
-Get-ChildItem "HKU:\" | Where-Object { $_.Name -match 'S-.*' -or $_.Name -match 'AME_UserHive_[^_]*' } | ForEach-Object {
-    $userKey = $_.Name
-    $volEnvKey = "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BannerStore"
-    if (Test-Path $volEnvKey) {
-        Write-Host "Making changes for $userKey..."
-        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BannerStore" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers\Handlers" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-        Remove-ItemProperty -Path "HKU\$userKey\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall" -Name "OneDrive" -Force -ErrorAction SilentlyContinue
-    }
-}
-
-Remove-Item -Path "$env:ProgramData\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -Path "$env:LOCALAPPDATA\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-
-Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
-    Remove-Item -Path "$($_.FullName)\AppData\Local\Microsoft\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "$($_.FullName)\OneDrive" -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -Path "$($_.FullName)\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk" -Force -ErrorAction SilentlyContinue
-}
-
-Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SyncRootManager" | Where-Object { $_.Name -like "*OneDrive*" } | ForEach-Object {
-    Remove-Item -Path $_.PSPath -Force -ErrorAction SilentlyContinue
-}
-
-Get-ScheduledTask | Where-Object { $_.TaskName -match "OneDrive Reporting Task|OneDrive Standalone Update Task" } | ForEach-Object {
-    Unregister-ScheduledTask -TaskName $_.TaskName -Force -ErrorAction SilentlyContinue
-}
-
-
-}
-
-
 Function SecurityUp1 {
-    Write-Host "Configuring Windows Update for Security Updates Only..." -ForegroundColor Green
-	Start-Sleep -Seconds 2
-
     $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
     $AURegistryPath = "$WURegistryPath\AU"
 
@@ -759,11 +604,11 @@ Function SecurityUp1 {
 
     Set-ItemProperty -Path $WURegistryPath -Name "DeferFeatureUpdates" -Value 1 -Force
     Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdates" -Value 1 -Force
-    Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force # Set to Semi-Annual Channel (Targeted)
+    Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force
     Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdatesPeriodInDays" -Value 0 -Force
 
     Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 1 -Force
-    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force # Notify for download/install
+    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force
 
     $DriverPolicyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
     if (-not (Test-Path $DriverPolicyPath)) {
@@ -771,46 +616,56 @@ Function SecurityUp1 {
     }
     Set-ItemProperty -Path $DriverPolicyPath -Name "SearchOrderConfig" -Value 0 -Force
 
-    Write-Host "Applying security-only updates settings..." -ForegroundColor Cyan
     Start-Process -FilePath "C:\Windows\System32\schtasks.exe" -ArgumentList "/Delete /TN \"\Microsoft\Windows\WindowsUpdate\Automatic App Update\" /F" -NoNewWindow -Wait
-	Clear-Host
+	
 }
 
+Function 1Debloat {
+	$SafeApps = "AAD.brokerplugin|accountscontrol|apprep.chxapp|assignedaccess|asynctext|bioenrollment|capturepicker|cloudexperience|contentdelivery|desktopappinstaller|ecapp|edge|extension|getstarted|immersivecontrolpanel|lockapp|net.native|oobenet|parentalcontrols|PPIProjection|search|sechealth|secureas|shellexperience|startmenuexperience|terminal|vclibs|xaml|XGpuEject"
+	If ($Xbox) {
+		$SafeApps = "$SafeApps|Xbox" 
+}
+	
+	If ($Allapps) {
+		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
+		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
+			ForEach ($RemovedApp in $RemoveApps) {
+				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
+				
+}			ForEach ($RemovedPrApp in $RemovePrApps) {
+				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
+				
+}
+}	Else {
+		$SafeApps = "$SafeApps|$GoodApps"
+		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
+		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
+			ForEach ($RemovedApp in $RemoveApps) {
+				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
+				
+}			ForEach ($RemovedPrApp in $RemovePrApps) {
+				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
+				
+}
+}
+}
 
-Function RunAll {
+Function 111RunAll {
 1SoftwareInstalls
-Clear-Host
-1Debloat
-Clear-Host
-1Annoyances
-Clear-Host
-1Wifi-Sense
-Clear-Host
-Ads1
-Clear-Host
-1DVR
-Clear-Host
-KBM1
-Clear-Host
-Misc1
-Clear-Host
-Services1
-Clear-Host
-Performance1
-Clear-Host
-Tasks1
-Clear-Host
 1Drive
-Clear-Host
+WiFiS1
+Ads1
+1DVR
+Game-Mode1
+KBM1
+MPP1
+Owner1
+Services1
+Performance1
+Tasks1
 SecurityUp1
-Clear-Host
-
-
-Write-Host "All Tweaks Completed!" -ForegroundColor Green
-Write-Host "Closing in 3..."
-Start-Sleep Seconds 2
+1Debloat
 
 }
 
-
-RunAll
+111RunAll
