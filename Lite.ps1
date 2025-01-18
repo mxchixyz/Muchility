@@ -35,7 +35,7 @@ function Compile-And-Run {
     Invoke-WebRequest -Uri $IconUrl -OutFile $IconPath -UseBasicParsing
 
     ps2exe $RunScriptPath $OutputExe -iconFile $IconPath -noConsole `
-        -Version "2.4.0" -Description "Muchility Created By Muchi @ mxchi.xyz" `
+        -Version "2.41" -Description "Muchility Created By Muchi @ mxchi.xyz" `
         -Copyright "Muchi @ mxchi.xyz" -Product "Muchility"
 
     Move-Item -Path $OutputExe -Destination $FinalExePath -Force
