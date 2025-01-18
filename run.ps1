@@ -245,7 +245,7 @@ Function UpdateForm {
     $rows = 3
 
     # Calculate window size based on buttons
-    $formWidth = 175
+    $formWidth = 165
     $formHeight = ($rows * ($buttonHeight + $paddingY)) + $paddingY + 40
 
     # Create a new form
