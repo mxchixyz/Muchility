@@ -77,7 +77,7 @@ Function MuchiForm {
 	
     # Create a new form
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "Muchility 2.4"
+    $form.Text = "Muchility 2.41"
     $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
     $form.Icon = Set-MuchiCon
     $form.BackgroundImage = Set-MuchiBG
@@ -120,9 +120,9 @@ Function MuchiForm {
         @{ Name = "Activate Tweaks"; Function = { Tweaks1 } },
         @{ Name = "Clear Temp"; Function = { Clear-Temp } },
         @{ Name = "Create Restore Point"; Function = { 1Restore } },
+		@{ Name = "Debloater"; Function = { 1Debloat } },
         @{ Name = "Repair System"; Function = { Repair-System } },
         @{ Name = "Update All Apps"; Function = { UpdateAll1 } },
-        @{ Name = "Update Drivers"; Function = { Update-Drivers } },
         @{ Name = "Windows Activation"; Function = { Activate-Windows } },
         @{ Name = "Windows Update"; Function = { Windows-Update } }
     )
@@ -167,7 +167,6 @@ Function TweaksForm {
     $tweakButtons = @(
         @{ Name = "Apply All"; Function = { 111RunAll } },
         @{ Name = "Block Device Installers"; Function = { 1SoftwareInstalls } },
-        @{ Name = "Debloater"; Function = { 1Debloat } },
         @{ Name = "Delete OneDrive"; Function = { 1Drive } },
         @{ Name = "Disable Wi-Fi Sense"; Function = { WiFiS1 } },
         @{ Name = "Disable Windows Ads"; Function = { Ads1 } },
@@ -946,37 +945,6 @@ Function SecurityUp1 {
 	
 }
 
-Function 1Debloat {
-	MuchiDMB "Debloating Microsoft Apps!"
-	$SafeApps = "AAD.brokerplugin|accountscontrol|apprep.chxapp|assignedaccess|asynctext|bioenrollment|capturepicker|cloudexperience|contentdelivery|desktopappinstaller|ecapp|edge|extension|getstarted|immersivecontrolpanel|lockapp|net.native|oobenet|parentalcontrols|PPIProjection|search|sechealth|secureas|shellexperience|startmenuexperience|terminal|vclibs|xaml|XGpuEject"
-	If ($Xbox) {
-		$SafeApps = "$SafeApps|Xbox" 
-}
-	
-	If ($Allapps) {
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
-}
-}	Else {
-		$SafeApps = "$SafeApps|$GoodApps"
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
-}
-}
-}
-
 Function 111RunAll {
 1SoftwareInstalls
 1Drive
@@ -991,9 +959,6 @@ Services1
 Performance1
 Tasks1
 SecurityUp1
-1Debloat
-#start-sleep Seconds 2
-
 }
 
 
@@ -1140,70 +1105,35 @@ Function Clean-TempFolders {
 	
 }
 
-Function cUpdate-Drivers {
-
-    
+Function 1Debloat {
+	MuchiDMB "Debloating Microsoft Apps!"
+	$SafeApps = "AAD.brokerplugin|accountscontrol|apprep.chxapp|assignedaccess|asynctext|bioenrollment|capturepicker|cloudexperience|contentdelivery|desktopappinstaller|ecapp|edge|extension|getstarted|immersivecontrolpanel|lockapp|net.native|oobenet|parentalcontrols|PPIProjection|search|sechealth|secureas|shellexperience|startmenuexperience|terminal|vclibs|xaml|XGpuEject"
+	If ($Xbox) {
+		$SafeApps = "$SafeApps|Xbox" 
+}
 	
-    # Define paths and URLs
-    $sdiUrl = "https://sdi-tool.org/releases/SDI_R2408.zip"  # Replace with actual SDI URL
-    $sdiPath = "C:\_SDI"
-    $zipFilePath = "$env:USERPROFILE\Downloads\SDI.zip"
-	
-
-
-    # Step 1: Ensure clean slate by deleting existing folder and zip if they exist
-    try {
-        if (Test-Path $sdiPath) { Remove-Item -Path $sdiPath -Recurse -Force }
-        if (Test-Path $zipFilePath) { Remove-Item -Path $zipFilePath -Force }
-    } catch {
-    }
-	
-
-
-    # Step 2: Download the SDI zip file
-    try {
-        Invoke-WebRequest -Uri $sdiUrl -OutFile $zipFilePath -UseBasicParsing
-    } catch {
-        return
-    }
-	
-
-
-    # Step 3: Extract the zip to the desired location
-    try {
-        Expand-Archive -Path $zipFilePath -DestinationPath $sdiPath -Force
-    } catch {
-        return
-    }
-	
-
-
-    # Step 4: Delete the zip file after extraction
-    try {
-        Remove-Item -Path $zipFilePath -Force
-    } catch {
-    }
-	
-
-
-    # Step 5: Locate the SDI_auto.bat file
-    try {
-        $batchFile = Get-ChildItem -Path $sdiPath -Filter "SDI_auto.bat" -Recurse | Select-Object -First 1
-        if (-not $batchFile) {
-            return
-        }
-    } catch {
-        return
-    }
-	
-
-
-    # Step 6: Launch the SDI_auto.bat file
-    try {
-        Start-Process -FilePath $batchFile.FullName
-		#start-sleep -Seconds 10
-    } catch {
-    }
+	If ($Allapps) {
+		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
+		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
+			ForEach ($RemovedApp in $RemoveApps) {
+				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
+				
+}			ForEach ($RemovedPrApp in $RemovePrApps) {
+				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
+				
+}
+}	Else {
+		$SafeApps = "$SafeApps|$GoodApps"
+		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
+		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
+			ForEach ($RemovedApp in $RemoveApps) {
+				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
+				
+}			ForEach ($RemovedPrApp in $RemovePrApps) {
+				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
+				
+}
+}
 }
 
 Function Create-RestorePoint {
