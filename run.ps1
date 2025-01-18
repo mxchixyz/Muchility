@@ -52,7 +52,7 @@ Function MuchiForm {
 
     # Create a new form
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "Muchility 2.31"
+    $form.Text = "Muchility 2.32"
     $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
 	$form.Icon = Set-FormIcon
 
@@ -98,14 +98,14 @@ Function MuchiForm {
 
     # Button definitions
     $tweakButtons = @(
-        @{ Name = "Tweaks Menu"; Function = { Tweaks1 } },
-        @{ Name = "Activate Windows"; Function = { Activate-Windows } },
-        @{ Name = "Windows Update"; Function = { Windows-Update } },
-        @{ Name = "Repair System"; Function = { Repair-System } },
-        @{ Name = "Clear Temp"; Function = { Clear-Temp } },
-        @{ Name = "Update Drivers"; Function = { Update-Drivers } },
-        @{ Name = "Update All Apps"; Function = { UpdateAll1 } },
-        @{ Name = "Create Restore Point"; Function = { 1Restore } }
+    @{ Name = "Activate Windows"; Function = { Activate-Windows } },
+	@{ Name = "Clear Temp"; Function = { Clear-Temp } },
+	@{ Name = "Create Restore Point"; Function = { 1Restore } },
+	@{ Name = "Repair System"; Function = { Repair-System } },
+	@{ Name = "Tweaks Menu"; Function = { Tweaks1 } },
+	@{ Name = "Update All Apps"; Function = { UpdateAll1 } },
+	@{ Name = "Update Drivers"; Function = { Update-Drivers } },
+	@{ Name = "Windows Update"; Function = { Windows-Update } }
     )
 
     # Add buttons dynamically
@@ -189,21 +189,21 @@ Function TweaksForm {
 
     # Button definitions for TweakForm
     $tweakButtons = @(
-        @{ Name = "Block Device Installers"; Function = { 1SoftwareInstalls } },
-        @{ Name = "Delete OneDrive"; Function = { 1Drive } },
-        @{ Name = "Disable Wi-Fi Sense"; Function = { WiFiS1 } },
-        @{ Name = "Disable Windows Ads"; Function = { Ads1 } },
-        @{ Name = "DVR Tweaks"; Function = { 1DVR } },
-        @{ Name = "Enable Game Mode"; Function = { Game-Mode1 } },
-        @{ Name = "KB + Mouse"; Function = { KBM1 } },
-        @{ Name = "Muchi Power Plan"; Function = { MPP1 } },
-        @{ Name = "Optimize Services"; Function = { Services1 } },
-        @{ Name = "Performance Tweaks"; Function = { Performance1 } },
-        @{ Name = "Scheduled Tasks"; Function = { Tasks1 } },
-        @{ Name = "Take Ownership"; Function = { Owner1 } },
-        @{ Name = "Security Updates Only"; Function = { SecurityUp1 } },
-        @{ Name = "Debloater"; Function = { 1Debloat } },
-        @{ Name = "Run All Tweaks"; Function = { 111RunAll } }
+    @{ Name = "Block Device Installers"; Function = { 1SoftwareInstalls } },
+	@{ Name = "Debloater"; Function = { 1Debloat } },
+	@{ Name = "Delete OneDrive"; Function = { 1Drive } },
+	@{ Name = "Disable Wi-Fi Sense"; Function = { WiFiS1 } },
+	@{ Name = "Disable Windows Ads"; Function = { Ads1 } },
+	@{ Name = "DVR Tweaks"; Function = { 1DVR } },
+	@{ Name = "Enable Game Mode"; Function = { Game-Mode1 } },
+	@{ Name = "KB + Mouse"; Function = { KBM1 } },
+	@{ Name = "Muchi Power Plan"; Function = { MPP1 } },
+	@{ Name = "Optimize Services"; Function = { Services1 } },
+	@{ Name = "Performance Tweaks"; Function = { Performance1 } },
+	@{ Name = "Run All Tweaks"; Function = { 111RunAll } },
+	@{ Name = "Scheduled Tasks"; Function = { Tasks1 } },
+	@{ Name = "Security Updates Only"; Function = { SecurityUp1 } },
+	@{ Name = "Take Ownership"; Function = { Owner1 } }
     )
 
     # Add buttons dynamically
