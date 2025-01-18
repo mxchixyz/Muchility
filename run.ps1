@@ -190,6 +190,8 @@ Function TweaksForm {
     # Button definitions for TweakForm
     $tweakButtons = @(
     @{ Name = "Block Device Installers"; Function = { 1SoftwareInstalls } },
+	@{ Name = "Apply All"; Function = { 111RunAll } },
+    	@{ Name = "Block Device Installers"; Function = { 1SoftwareInstalls } },
 	@{ Name = "Debloater"; Function = { 1Debloat } },
 	@{ Name = "Delete OneDrive"; Function = { 1Drive } },
 	@{ Name = "Disable Wi-Fi Sense"; Function = { WiFiS1 } },
@@ -200,7 +202,6 @@ Function TweaksForm {
 	@{ Name = "Muchi Power Plan"; Function = { MPP1 } },
 	@{ Name = "Optimize Services"; Function = { Services1 } },
 	@{ Name = "Performance Tweaks"; Function = { Performance1 } },
-	@{ Name = "Run All Tweaks"; Function = { 111RunAll } },
 	@{ Name = "Scheduled Tasks"; Function = { Tasks1 } },
 	@{ Name = "Security Updates Only"; Function = { SecurityUp1 } },
 	@{ Name = "Take Ownership"; Function = { Owner1 } }
