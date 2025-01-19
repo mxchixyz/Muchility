@@ -4,8 +4,9 @@
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
 
-
-
+$muchisite = "@ mxchi.xyz - "
+$muchiVer = "v2.41"
+$muchititle = "Muchility " + $muchisite + $muchiVer
 
 Function Set-MuchiCon {
     # Base64 string for the icon (replace this with your actual Base64 string)
@@ -77,10 +78,10 @@ Function MuchiForm {
 	
     # Create a new form
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "Muchility 2.41"
     $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
     $form.Icon = Set-MuchiCon
     $form.BackgroundImage = Set-MuchiBG
+	$form.Text = $muchititle
 
     # Make the form fixed size (no resizing allowed)
     $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
@@ -151,7 +152,7 @@ Function TweaksForm {
 
     # Create a new form
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "Muchility - Tweaks"
+    $form.Text = $muchititle
     $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
     $form.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
     $form.ForeColor = [System.Drawing.Color]::White
@@ -250,7 +251,7 @@ Function UpdateForm {
 
     # Create a new form
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "Updates"
+    $form.Text = $muchititle
     $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
 	$form.Icon = Set-MuchiCon
 	$form.BackgroundImage = Set-MuchiBG
@@ -1289,7 +1290,7 @@ Function MuchiDMB {
     $form.Controls.Add($label)
 	
 	$form.BackgroundImage = Set-MuchiBG
-	$form.Text = "Muchility - mxchi.xyz"
+	$form.Text = $muchititle
 
     # Dynamically update label position on form resize
     $form.Add_Shown({
