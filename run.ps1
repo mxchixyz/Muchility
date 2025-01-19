@@ -4,9 +4,24 @@
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
 
+
+
+# " > $null 2>&1"
+
+
+
+
 $muchisite = "@ mxchi.xyz - "
-$muchiVer = "v2.41"
+$muchiVer = "v2.52"
 $muchititle = "Muchility " + $muchisite + $muchiVer
+
+
+
+
+$GoodApps = "calculator|store|windowsnotepad"
+
+
+
 
 Function Set-MuchiCon {
     # Base64 string for the icon (replace this with your actual Base64 string)
@@ -56,8 +71,20 @@ Function Set-MuchiBG {
     }
 }
 
+Function Cnet {
+    # Try to ping a reliable host (Google's public DNS server in this example)
+    $HostToPing = "8.8.8.8"
+    $PingResult = Test-Connection -ComputerName $HostToPing -Count 1 -Quiet
+
+    If (-Not $PingResult) {
+        MuchiDMB "No Internet Will Lead To Errors!"
+    }
+}
 
 
+
+
+# Muchility Main Window
 
 Function MuchiForm {
     # Load required assemblies
@@ -74,7 +101,7 @@ Function MuchiForm {
 
     # Calculate window size based on buttons
     $formWidth = 305
-    $formHeight = ($rows * ($buttonHeight + $paddingY)) + $paddingY + 40
+    $formHeight = 355
 	
     # Create a new form
     $form = New-Object System.Windows.Forms.Form
@@ -106,7 +133,7 @@ Function MuchiForm {
         $button.FlatAppearance.BorderSize = 0  # Remove the border
 
         # Set the button's background color to pink
-        $button.BackColor = [System.Drawing.Color]::FromArgb(255, 89, 17, 114)  # Hot Pink
+        $button.BackColor = [System.Drawing.Color]::FromArgb(255, 109, 37, 134)  # Hot Pink
         $button.ForeColor = [System.Drawing.Color]::white  # Set text color to white
 
         # Add click event
@@ -117,25 +144,27 @@ Function MuchiForm {
     }
 
     # Button definitions
-    $tweakButtons = @(
-        @{ Name = "Activate Tweaks"; Function = { Tweaks1 } },
-        @{ Name = "Clear Temp"; Function = { Clear-Temp } },
-        @{ Name = "Create Restore Point"; Function = { 1Restore } },
-		@{ Name = "Debloater"; Function = { 1Debloat } },
-        @{ Name = "Repair System"; Function = { Repair-System } },
-        @{ Name = "Update All Apps"; Function = { UpdateAll1 } },
-        @{ Name = "Windows Activation"; Function = { Activate-Windows } },
-        @{ Name = "Windows Update"; Function = { Windows-Update } }
+    $muchiButtons = @(
+		@{ Name = "Create Restore Point"; Function = { 1Restore } }, # Windows
+		@{ Name = "Apply Tweaks"; Function = { Tweaks1 } }, # Tweak
+		@{ Name = "Activate Windows"; Function = { Activate-Win } }, # Windows
+        @{ Name = "Clear Temp"; Function = { Clear-Temp } }, # Tweak
+		@{ Name = "Upgrade Windows"; Function = { Upgrade-Win } }, # Windows
+		@{ Name = "Repair System"; Function = { Repair-System } }, # Tweak
+		@{ Name = "Windows Update"; Function = { Windows-Update } }, # Windows
+		@{ Name = "Debloater"; Function = { DebloatPS } }, # Tweak
+        @{ Name = "Update All Apps"; Function = { UpdateAll1 } } # Tweak
+		@{ Name = "Discord"; Function = { MuDiscord } } # Tweak
     )
 
     # Add buttons dynamically
-    for ($i = 0; $i -lt $tweakButtons.Count; $i++) {
+    for ($i = 0; $i -lt $muchiButtons.Count; $i++) {
         $col = $i % $columns
         $row = [math]::Floor($i / $columns)
         $x = ($col * ($buttonWidth + $paddingX)) + $paddingX
         $y = ($row * ($buttonHeight + $paddingY)) + $paddingY
 
-        $button = $tweakButtons[$i]
+        $button = $muchiButtons[$i]
         Add-Button -text $button.Name -x $x -y $y -function $button.Function
     }
 
@@ -145,6 +174,8 @@ Function MuchiForm {
 
 
 
+
+# Tweaks Window
 
 Function TweaksForm {
     # Load required assembly
@@ -191,14 +222,14 @@ Function TweaksForm {
     $comboBox.SelectedIndex = 0  # Default to the first item
 
     # Style the ComboBox to match the pink theme
-    $comboBox.BackColor = [System.Drawing.Color]::FromArgb(255, 89, 17, 114)  # Hot Pink
+    $comboBox.BackColor = [System.Drawing.Color]::FromArgb(255, 109, 37, 134)
     $comboBox.ForeColor = [System.Drawing.Color]::White
     $comboBox.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
     $comboBox.FlatAppearance.BorderSize = 0  # Remove the border
 
     # Create the "Apply Tweak" button
     $applyButton = New-Object System.Windows.Forms.Button
-    $applyButton.Text = "Apply Tweak"
+    $applyButton.Text = "Apply!"
     $applyButton.Size = New-Object System.Drawing.Size(120, 40)
     $applyButton.Location = New-Object System.Drawing.Point(60, 60)
     $applyButton.BackColor = [System.Drawing.Color]::FromArgb(255, 89, 17, 114)
@@ -233,6 +264,8 @@ Function TweaksForm {
 
 
 
+# Windows Update Window
+
 Function UpdateForm {
     # Load required assembly
     Add-Type -AssemblyName System.Windows.Forms
@@ -256,10 +289,6 @@ Function UpdateForm {
 	$form.Icon = Set-MuchiCon
 	$form.BackgroundImage = Set-MuchiBG
 
-    # Apply dark mode colors
-    $form.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 48)
-    $form.ForeColor = [System.Drawing.Color]::White
-
     # Make the form fixed size (no resizing allowed)
     $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
     $form.MaximizeBox = $false
@@ -280,7 +309,7 @@ Function UpdateForm {
         $button.Location = New-Object System.Drawing.Point($x, $y)
         $button.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
         $button.FlatAppearance.BorderSize = 0
-        $button.BackColor = [System.Drawing.Color]::FromArgb(255, 89, 17, 114)  # Pink color
+        $button.BackColor = [System.Drawing.Color]::FromArgb(255, 109, 37, 134)
         $button.ForeColor = [System.Drawing.Color]::white
 
         $button.Add_Click($function)
@@ -312,15 +341,9 @@ Function UpdateForm {
 
 
 
-# All Functions
-
-
-
-
 #Tweaks, Individual + RunAll
 
 Function 1SoftwareInstalls {
-	MuchiDMB "Blocking Auto Device Installers!"
         # Create and set DenyDeviceIDs registry key
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Force | Out-Null
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Name "DenyDeviceIDs" -Value 1
@@ -348,7 +371,6 @@ Function 1SoftwareInstalls {
 }
 
 Function 1Drive {
-	MuchiDMB "Deleting OneDrive!"
 Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
     if (Test-Path "$($_.FullName)\OneDrive") {
         if ((Get-ChildItem "$($_.FullName)\OneDrive" -File).Count -gt 0) {
@@ -402,13 +424,11 @@ Get-ScheduledTask | Where-Object { $_.TaskName -match "OneDrive Reporting Task|O
 }
 
 Function WiFiS1 {
-	MuchiDMB "Disabling Wi-Fi Sense!"
     New-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -PropertyType DWord -Value 0 -Force
     New-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -PropertyType DWord -Value 0 -Force
 }
 
 Function Ads1 {
-	MuchiDMB "Disabling Windows Ads!"
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "FeatureManagementEnabled" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Value 0
@@ -432,7 +452,6 @@ Function Ads1 {
 }
 
 Function 1DVR {
-	MuchiDMB "Applying DVR Tweaks!"
     Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "UseNexusForGameBarEnabled" -Value 0
     New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -PropertyType DWord -Value 0 -Force
@@ -476,7 +495,6 @@ Function 1DVR {
 
 Function Game-Mode1 {
 	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 1;
-	MuchiDMB "Game Mode Enabled!"
 }
 
 Function KBM1 {
@@ -497,29 +515,38 @@ Function KBM1 {
     New-ItemProperty -Path 'HKCU:\Control Panel\Mouse' -Name 'SmoothMouseYCurve' -PropertyType Binary -Value ([byte[]]@(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xA8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0x00, 0x00, 0x00, 0x00, 0x00)) -Force
     Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters' -Name 'KeyboardDataQueueSize' -Value 30 -Type DWord
     Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters' -Name 'MouseDataQueueSize' -Value 30 -Type DWord
-	MuchiDMB "Keyboard & Mouse Tweaks Applied!"
 }
 
 Function MPP1 {
-	MuchiDMB "Importing Muchi Power Plan!"
     $downloadUrl = "https://github.com/Muchiiix/Muchility/raw/refs/heads/main/Muchi.pow"
     $destinationPath = "C:\_temp\Muchi.pow"
     $targetDir = Split-Path -Path $destinationPath
+
+    # Check if a power plan containing "Muchi" already exists
+    $schemes = powercfg /l
+    if ($schemes -match "Muchi") {
+        MuchiDMB "Muchi Power Plan Already Exists"
+        return
+    }
+
+    # Create target directory if it doesn't exist
     if (!(Test-Path -Path $targetDir)) {
         New-Item -ItemType Directory -Path $targetDir -Force
     }
+
+    # Download and import the power plan
     Invoke-WebRequest -Uri $downloadUrl -OutFile $destinationPath
     powercfg -import $destinationPath
+
+    # Set the imported plan as active
     $schemes = powercfg /l
     $schemeGuid = $schemes | Select-String -Pattern "Muchi" | ForEach-Object { $_.ToString().Split()[3] }
     if ($schemeGuid) {
         powercfg /s $schemeGuid
-    } else {
     }
 }
 
 Function Owner1 {
-	MuchiDMB "Added Take Ownership To Context Menu"
     $regFilePath = "C:\_temp\takeownership.reg"
     $regContent = @"
 Windows Registry Editor Version 5.00
@@ -563,7 +590,6 @@ Remove-Item -Path $regFilePath -Force
 }
 
 Function Services1 {
-	MuchiDMB "Optimizing Services!"
   Set-Service -Name 'AJRouter' -StartupType Disabled -ErrorAction Continue
   Set-Service -Name 'ALG' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'AppIDSvc' -StartupType Manual -ErrorAction Continue
@@ -891,11 +917,9 @@ Function Performance1 {
 	New-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games' -Name 'Scheduling Category' -PropertyType String -Value 'High' -Force;
 	Set-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583' -Name 'ValueMax' -Value 0;
 	Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling' -Name 'PowerThrottlingOff' -Value 1;
-	MuchiDMB "Performance Tweaks Applied!"
 }
 
 Function Tasks1 {
-	MuchiDMB "Optimizing Scheduled Tasks"
   $scheduledTasks = @(
       "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser",
       "Microsoft\Windows\Application Experience\ProgramDataUpdater",
@@ -917,7 +941,6 @@ Function Tasks1 {
 }
 
 Function SecurityUp1 {
-	MuchiDMB "Security Updates Only Enabled!"
     $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
     $AURegistryPath = "$WURegistryPath\AU"
 
@@ -960,12 +983,13 @@ Services1
 Performance1
 Tasks1
 SecurityUp1
+MuchiDMB "All Tweaks Applied"
 }
 
 
 
 
-# Functions
+# Upgrade & Activate Windows Functions
 
 Function Activate-Win {
     
@@ -1005,35 +1029,25 @@ Function Activate-Win {
     Return
 }
 
-Function Win-Sec-Upd {
+Function Upgrade-Win {
+    try {
+        $null = sc.exe config LicenseManager start= auto > $null 2>&1
+        $null = net start LicenseManager > $null 2>&1
 
+        $null = sc.exe config wuauserv start= auto > $null 2>&1
+        $null = net start wuauserv > $null 2>&1
 
-    $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
-    $AURegistryPath = "$WURegistryPath\AU"
-
-    if (-not (Test-Path $WURegistryPath)) {
-        New-Item -Path $WURegistryPath -Force | Out-Null
+        & "changepk.exe" /productkey "VK7JG-NPHTM-C97JM-9MPGT-3V66T"
+    } catch {
+        throw $_
     }
-    if (-not (Test-Path $AURegistryPath)) {
-        New-Item -Path $AURegistryPath -Force | Out-Null
-    }
-
-    Set-ItemProperty -Path $WURegistryPath -Name "DeferFeatureUpdates" -Value 1 -Force
-    Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdates" -Value 1 -Force
-    Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force # Set to Semi-Annual Channel (Targeted)
-    Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdatesPeriodInDays" -Value 0 -Force
-
-    Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 1 -Force
-    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force # Notify for download/install
-
-    $DriverPolicyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
-    if (-not (Test-Path $DriverPolicyPath)) {
-        New-Item -Path $DriverPolicyPath -Force | Out-Null
-    }
-    Set-ItemProperty -Path $DriverPolicyPath -Name "SearchOrderConfig" -Value 0 -Force
-
-    Start-Process -FilePath "C:\Windows\System32\schtasks.exe" -ArgumentList "/Delete /TN \"\Microsoft\Windows\WindowsUpdate\Automatic App Update\" /F" -NoNewWindow -Wait
 }
+
+
+
+
+
+# Functions
 
 Function cSystem-Repairs {
     # Run the CMD as Administrator and execute the repairs
@@ -1048,38 +1062,6 @@ Function cSystem-Repairs {
     
     # Launch the command in an elevated CMD window
     Start-Process "cmd.exe" -ArgumentList "/K $cmdArguments" -Verb RunAs
-}
-
-Function mInstall-Choco {
-
-    
-	
-    # Check if Chocolatey is already installed
-    if (Get-Command choco -ErrorAction SilentlyContinue) {
-        #start-sleep -Seconds 2
-        return  # Exit the function if already installed
-    }
-    else {
-        #start-sleep -Seconds 2
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-        return  # Exit the function after installation
-    }
-}
-
-Function mRemove-Choco {
-	    # Delete existing Chocolatey directories if found
-    $chocoDir = "C:\ProgramData\chocolatey"
-    $chocoCacheDir = "C:\ProgramData\ChocolateyHttpCache"
-    
-    if (Test-Path -Path $chocoDir) {
-        Remove-Item -Recurse -Force -Path $chocoDir
-    }
-
-    if (Test-Path -Path $chocoCacheDir) {
-        Remove-Item -Recurse -Force -Path $chocoCacheDir
-    }
-
 }
 
 Function Clean-TempFolders {
@@ -1104,37 +1086,6 @@ Function Clean-TempFolders {
     # Clean C:\_temp
     Remove-TempFolder $customTemp1
 	
-}
-
-Function 1Debloat {
-	MuchiDMB "Debloating Microsoft Apps!"
-	$SafeApps = "AAD.brokerplugin|accountscontrol|apprep.chxapp|assignedaccess|asynctext|bioenrollment|capturepicker|cloudexperience|contentdelivery|desktopappinstaller|ecapp|edge|extension|getstarted|immersivecontrolpanel|lockapp|net.native|oobenet|parentalcontrols|PPIProjection|search|sechealth|secureas|shellexperience|startmenuexperience|terminal|vclibs|xaml|XGpuEject"
-	If ($Xbox) {
-		$SafeApps = "$SafeApps|Xbox" 
-}
-	
-	If ($Allapps) {
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
-}
-}	Else {
-		$SafeApps = "$SafeApps|$GoodApps"
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
-}
-}
 }
 
 Function Create-RestorePoint {
@@ -1176,10 +1127,15 @@ Function Enable-RestorePoints {
     }
 }
 
+Function MuDiscord {
+	Start-Process "https://mxchi.xyz/discord"
+}
 
 
+# MUCHILITY BUTTONS
 
-# Home Button Functions 
+
+# Activate Tweaks BUTTON
 
 Function Tweaks1 {
 
@@ -1190,21 +1146,29 @@ TweaksForm > $null 2>&1
 
 }
 
+# Activate Windows BUTTON
+
 Function Activate-Windows {
 
 MuchiDMB "Activating Windows"
 	Activate-Win > $null 2>&1
 }
 
+# Windows Update BUTTON
+
 Function Windows-Update {
 	UpdateForm > $null 2>&1
 }
+
+# Repair System BUTTON
 
 Function Repair-System {
 
 MuchiDMB "Starting System Repairs!"
 	cSystem-Repairs > $null 2>&1
 }
+
+# Clear Temp BUTTON
 
 Function Clear-Temp {
 	Clean-TempFolders > $null 2>&1
@@ -1214,11 +1178,7 @@ MuchiDMB "Temp Files/Folders Cleared"
 
 }
 
-Function Update-Drivers {
-
-MuchiDMB "Drivers Updating via SDI"
-	cUpdate-Drivers > $null 2>&1
-}
+# Create Restore Point BUTTON
 
 Function 1Restore {
 	Check-RestorePointStatus
@@ -1226,6 +1186,8 @@ Function 1Restore {
 	Enable-RestorePoints
 	Create-RestorePoint
 }
+
+# Update All Apps BUTTON
 
 Function UpdateAll1 {
     # Check if Chocolatey is installed
@@ -1238,13 +1200,13 @@ Function UpdateAll1 {
         # Update all installed packages with Chocolatey
         choco upgrade all -force -y
     } else {
-        MuchiDMB "Choco is missing, Installing..."
+        MuchiDMB "Choco missing, Installing."
         
         # Install Chocolatey
         Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; 
         iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
         
-        MuchiDMB "Choco has been installed. Now updating all apps."
+        MuchiDMB "Choco installed. Updating."
         
         # Enable global confirmation for silent updates
         choco feature enable -n allowGlobalConfirmation
@@ -1254,6 +1216,11 @@ Function UpdateAll1 {
     }
 }
 
+# Debloat Button
+
+Function DebloatPS { 
+    Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "& { iwr -useb 'https://mxchi.xyz/bloat' | iex }"
+}
 
 
 
@@ -1318,9 +1285,7 @@ Function MuchiDMB {
 
 
 
-
-
-# Windows Update Functions
+# Windows Update Buttons
 
 Function WinUp-Sec {
     # Define registry paths for Windows Update configurations
@@ -1398,5 +1363,7 @@ Function WinUp-Ena {
 
 
 
+# " > $null 2>&1"
 
+Cnet > $null 2>&1
 MuchiForm
