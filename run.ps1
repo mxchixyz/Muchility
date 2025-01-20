@@ -11,11 +11,11 @@ set-executionpolicy unrestricted
 
 
 $muchisite = "@ mxchi.xyz - "
-$muchiVer = "v2.61"
+$muchiVer = "v2.62"
 $muchititle = "Muchility " + $muchisite + $muchiVer
 
 
-$GoodApps = "calculator|store|windowsnotepad"
+$GoodApps = "calculator|store|windowsnotepad|chatgpt"
 
 
 Function MuchilityIcon {
@@ -936,41 +936,7 @@ MuchiDMB "All Tweaks Applied"
 # Upgrade & Activate Windows Functions
 
 Function Activate-Win {
-    
-	
-    # Define paths
-    $url = "https://www.dropbox.com/scl/fi/u2tzx77rfji79mpqa54su/Activate.cmd?rlkey=uys7zaez0dxeu3di7znwq2zty&st=7ed9il2y&dl=1"
-    $filePath = "C:\Activate-Windows-Button\Activate.cmd"
-    $shortcutPath = [System.IO.Path]::Combine([System.Environment]::GetFolderPath('Desktop'), "Activate Windows.lnk")
-    
-	
-
-    # Create directory if it doesn't exist
-    If (-not (Test-Path "C:\Activate-Windows-Button")) {
-        New-Item -ItemType Directory -Path "C:\Activate-Windows-Button"
-    }
-	
-
-
-    # Download the file
-    Invoke-WebRequest -Uri $url -OutFile $filePath
-    
-	
-    # Create shortcut
-    $WScriptShell = New-Object -ComObject WScript.Shell
-    $shortcut = $WScriptShell.CreateShortcut($shortcutPath)
-    $shortcut.TargetPath = $filePath
-    $shortcut.Arguments = "/HWID"  # Add /HWID argument
-    $shortcut.WorkingDirectory = "C:\Activate-Windows-Button"
-    $shortcut.IconLocation = "C:\Windows\System32\cmd.exe, 0"  # Icon for shortcut
-    $shortcut.Save()
-    
-	
-    # Run the shortcut as administrator
-    Start-Process $shortcutPath -Verb RunAs
-    
-	
-    Return
+	Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "& { iwr -useb 'https://mxchi.xyz/activate' | iex }"
 }
 
 Function Upgrade-Win {
