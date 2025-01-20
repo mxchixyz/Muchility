@@ -4,23 +4,18 @@
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
 
+set-executionpolicy unrestricted
 
 
 # " > $null 2>&1"
 
 
-
-
 $muchisite = "@ mxchi.xyz - "
-$muchiVer = "v2.6"
+$muchiVer = "v2.61"
 $muchititle = "Muchility " + $muchisite + $muchiVer
 
 
-
-
 $GoodApps = "calculator|store|windowsnotepad"
-
-
 
 
 Function MuchilityIcon {
@@ -70,8 +65,6 @@ Function MuchilityBackground {
         return $null
     }
 }
-
-
 
 
 # Muchility Main Window
@@ -163,8 +156,6 @@ Function Muchility-Window {
 }
 
 
-
-
 # Tweaks Window
 
 Function Tweaks-Window {
@@ -251,8 +242,6 @@ Function Tweaks-Window {
 }
 
 
-
-
 # Windows Update Window
 
 Function Windows-Update-Window {
@@ -326,8 +315,6 @@ Function Windows-Update-Window {
     # Display the form
     [void]$form.ShowDialog()
 }
-
-
 
 
 #Tweaks + RunAll
@@ -946,8 +933,6 @@ MuchiDMB "All Tweaks Applied"
 }
 
 
-
-
 # Upgrade & Activate Windows Functions
 
 Function Activate-Win {
@@ -993,8 +978,6 @@ Function Upgrade-Win {
 }
 
 
-
-
 # Functions
 
 Function FF-Repair {
@@ -1036,45 +1019,6 @@ Function FF-Clean-Temp-Folders {
 	
 }
 
-Function FF-Create-Restore-Point {
-    Checkpoint-Computer -Description "Before Muchility" -RestorePointType "MODIFY_SETTINGS"
-}
-
-Function FF-Set-Restore-Point-Frequency {
-    try {
-        $registryPath = "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore"
-        $valueName = "SystemRestorePointCreationFrequency"
-        $valueData = 2
-
-        if (-not (Test-Path $registryPath)) {
-            throw "Registry path $registryPath does not exist."
-        }
-
-        Set-ItemProperty -Path $registryPath -Name $valueName -Value $valueData -Force > $null 2>&1
-    } catch {
-        # Handle failure silently
-    }
-}
-
-Function FF-Check-Restore-Point-Status {
-    $vssOutput = vssadmin list shadowstorage
-
-    if ($vssOutput -match "No shadow copies are available") {
-        return $false
-    } else {
-        return $true
-    }
-}
-
-Function FF-Enable-Restore-Points {
-    try {
-        Enable-ComputerRestore -Drive "C:\"  # Modify the drive as needed
-        return $true
-    } catch {
-        return $false
-    }
-}
-
 Function FF-CheckNet {
     # Try to ping a reliable host (Google's public DNS server in this example)
     $HostToPing = "8.8.8.8"
@@ -1086,10 +1030,7 @@ Function FF-CheckNet {
 }
 
 
-
-
 # MUCHILITY BUTTONS
-
 
 # Activate Tweaks BUTTON
 
@@ -1137,10 +1078,7 @@ MuchiDMB "Temp Files/Folders Cleared"
 # Create Restore Point BUTTON
 
 Function Restore-Button {
-	FF-Check-Restore-Point-Status
-	FF-Set-Restore-Point-Frequency
-	FF-Enable-Restore-Points
-	FF-Create-Restore-Point
+	Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "& { iwr -useb 'https://mxchi.xyz/restore' | iex }"
 }
 
 # Update All Apps BUTTON
@@ -1160,8 +1098,6 @@ Function DebloatPS {
 Function Discord-Button {
 	Start-Process "https://mxchi.xyz/discord"
 }
-
-
 
 
 #Funtion For Dark Mode Message Boxes
@@ -1221,8 +1157,6 @@ Function MuchiDMB {
 	$form.Icon = MuchilityIcon
     $form.ShowDialog()
 }
-
-
 
 
 # Windows Update Buttons
@@ -1300,8 +1234,6 @@ Function WinUp-Ena {
     Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 0 -Force
     Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 4 -Force # Auto download and install updates
 }
-
-
 
 
 # " > $null 2>&1"
