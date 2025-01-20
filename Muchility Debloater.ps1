@@ -3,8 +3,9 @@
 #║ ║ ║ ║║*║*║║*╚═╣║*╔╗*║║*║"
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
+set-executionpolicy unrestricted
 
-$GoodApps = "calculator|store|windowsnotepad"
+$GoodApps = "calculator|store|windowsnotepad|chatgpt"
 
 Function RemoveApps {
     # SafeApps contains apps that shouldn't be removed, or just can't and cause errors
