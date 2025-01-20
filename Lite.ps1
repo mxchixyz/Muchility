@@ -3,7 +3,10 @@
 #║ ║ ║ ║║*║*║║*╚═╣║*╔╗*║║*║"
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
-# Check if ps2exe is installed
+
+$muver = "2.61"
+
+
 function Check-PS2EXE {
     try {
         Get-Command ps2exe -ErrorAction Stop | Out-Null
@@ -13,15 +16,18 @@ function Check-PS2EXE {
     }
 }
 
-# Install ps2exe if missing
 function Install-PS2EXE {
-    Install-Module -Name ps2exe -Force -Scope CurrentUser
+    try {
+        Install-Module -Name ps2exe -Force -Scope CurrentUser -ErrorAction Stop > $null 2>&1
+    } catch {
+        Write-Error "Failed to install ps2exe module. Ensure you have internet access and try again."
+        exit 1
+    }
 }
 
-# Compile and run the script
 function Compile-And-Run {
     $TempDir = "C:\_temp"
-    if (!(Test-Path -Path $TempDir)) { New-Item -ItemType Directory -Path $TempDir | Out-Null }
+    if (!(Test-Path -Path $TempDir)) { New-Item -ItemType Directory -Path $TempDir -Force > $null 2>&1 }
 
     $RunScriptUrl = "https://raw.githubusercontent.com/Muchiiix/Muchility/main/run.ps1"
     $IconUrl = "https://raw.githubusercontent.com/Muchiiix/Muchility/main/Muchi.ico"
@@ -31,26 +37,51 @@ function Compile-And-Run {
     $DesktopPath = [Environment]::GetFolderPath("Desktop")
     $FinalExePath = Join-Path $DesktopPath "Muchility.exe"
 
-    Invoke-WebRequest -Uri $RunScriptUrl -OutFile $RunScriptPath -UseBasicParsing
-    Invoke-WebRequest -Uri $IconUrl -OutFile $IconPath -UseBasicParsing
+    try {
+        Invoke-WebRequest -Uri $RunScriptUrl -OutFile $RunScriptPath -UseBasicParsing -ErrorAction Stop
+        Invoke-WebRequest -Uri $IconUrl -OutFile $IconPath -UseBasicParsing -ErrorAction Stop
+    } catch {
+        Write-Error "Failed to download required files. Ensure you have internet access and try again."
+        exit 1
+    }
 
-    ps2exe $RunScriptPath $OutputExe -iconFile $IconPath -noConsole `
-        -Version "2.61" -Description "Muchility Created By Muchi @ mxchi.xyz" `
-        -Copyright "Muchi @ mxchi.xyz" -Product "Muchility"
+    if (!(Test-Path -Path $RunScriptPath) -or !(Test-Path -Path $IconPath)) {
+        Write-Error "Required files are missing after download. Check the URLs and try again."
+        exit 1
+    }
 
-    Move-Item -Path $OutputExe -Destination $FinalExePath -Force
-    Remove-Item -Path $TempDir -Recurse -Force
-    Start-Process -FilePath $FinalExePath
-    goodbye
-}
+    try {
+        ps2exe $RunScriptPath $OutputExe -iconFile $IconPath `
+            -Version $muver -Description "Muchility Created By Muchi @ mxchi.xyz" `
+            -Copyright "Muchi @ mxchi.xyz" -Product "Muchility" `
+            -NoConsole > $null 2>&1
+    } catch {
+        Write-Error "Compilation failed. Ensure ps2exe is installed correctly."
+        exit 1
+    }
 
-function goodbye {
-    clear-host
+    Move-Item -Path $OutputExe -Destination $FinalExePath -Force > $null 2>&1
+    Remove-Item -Path $TempDir -Recurse -Force > $null 2>&1
+    Start-Process -FilePath $FinalExePath > $null 2>&1
     exit
 }
 
-# Main execution
-if (-not (Check-PS2EXE)) { Install-PS2EXE }
-Compile-And-Run
-goodbye
+function Close-Muchility {
+    $process = Get-Process -Name "muchility" -ErrorAction SilentlyContinue
+    if ($process) {
+        Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        return $true
+    } else {
+        return $false
+    }
+}
 
+# Main Execution
+if (Close-Muchility) {
+    # Handle successful process closure if needed
+}
+
+if (-not (Check-PS2EXE)) { Install-PS2EXE }
+
+Close-Muchility > $null 2>&1
+Compile-And-Run > $null 2>&1
