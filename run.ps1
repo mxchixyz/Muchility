@@ -1084,7 +1084,7 @@ Function Restore-Button {
 # Update All Apps BUTTON
 
 Function Update-Apps-Button {
-    Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "& { iwr -useb 'https://mxchi.xyz/chocoupdateall' | iex }"
+    Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "& { iwr -useb 'https://mxchi.xyz/updater' | iex }"
 }
 
 # Debloat Button
