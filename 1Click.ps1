@@ -6,7 +6,9 @@
 set-executionpolicy unrestricted
 
 
-Function 1SoftwareInstalls {
+#Tweaks + RunAll
+
+Function TwSwInstalls {
         # Create and set DenyDeviceIDs registry key
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Force | Out-Null
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Name "DenyDeviceIDs" -Value 1
@@ -33,7 +35,7 @@ Function 1SoftwareInstalls {
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0
 }
 
-Function 1Drive {
+Function TwOneDrive {
 Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
     if (Test-Path "$($_.FullName)\OneDrive") {
         if ((Get-ChildItem "$($_.FullName)\OneDrive" -File).Count -gt 0) {
@@ -86,12 +88,12 @@ Get-ScheduledTask | Where-Object { $_.TaskName -match "OneDrive Reporting Task|O
 
 }
 
-Function WiFiS1 {
+Function TwWiFiSense {
     New-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Name "Value" -PropertyType DWord -Value 0 -Force
     New-ItemProperty -Path "HKLM:\Software\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -PropertyType DWord -Value 0 -Force
 }
 
-Function Ads1 {
+Function TwAds {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "FeatureManagementEnabled" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Value 0
@@ -114,7 +116,7 @@ Function Ads1 {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SystemPaneSuggestionsEnabled" -Value 0
 }
 
-Function 1DVR {
+Function TwDVR {
     Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Value 0
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\GameBar" -Name "UseNexusForGameBarEnabled" -Value 0
     New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -PropertyType DWord -Value 0 -Force
@@ -156,11 +158,11 @@ Function 1DVR {
     Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR" -Name "MicrophoneGain" -Value ([byte[]]@(0x10, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
 }
 
-Function Game-Mode1 {
+Function TwGameMode {
 	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AutoGameModeEnabled' -Value 1;
 }
 
-Function KBM1 {
+Function TwKBM {
     Set-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\DWM' -Name 'UseDpiScaling' -Value 0
     New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\Keyboard Response' -Name 'Flags' -PropertyType String -Value '2' -Force
     New-ItemProperty -Path 'HKCU:\Control Panel\Accessibility\Keyboard Response' -Name 'AutoRepeatRate' -PropertyType String -Value '0' -Force
@@ -180,24 +182,36 @@ Function KBM1 {
     Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\mouclass\Parameters' -Name 'MouseDataQueueSize' -Value 30 -Type DWord
 }
 
-Function MPP1 {
+Function TwMuchiPowerPlan {
     $downloadUrl = "https://github.com/Muchiiix/Muchility/raw/refs/heads/main/Muchi.pow"
     $destinationPath = "C:\_temp\Muchi.pow"
     $targetDir = Split-Path -Path $destinationPath
+
+    # Check if a power plan containing "Muchi" already exists
+    $schemes = powercfg /l
+    if ($schemes -match "Muchi") {
+        MuchiDMB "Muchi Power Plan Already Exists"
+        return
+    }
+
+    # Create target directory if it doesn't exist
     if (!(Test-Path -Path $targetDir)) {
         New-Item -ItemType Directory -Path $targetDir -Force
     }
+
+    # Download and import the power plan
     Invoke-WebRequest -Uri $downloadUrl -OutFile $destinationPath
     powercfg -import $destinationPath
+
+    # Set the imported plan as active
     $schemes = powercfg /l
     $schemeGuid = $schemes | Select-String -Pattern "Muchi" | ForEach-Object { $_.ToString().Split()[3] }
     if ($schemeGuid) {
         powercfg /s $schemeGuid
-    } else {
     }
 }
 
-Function Owner1 {
+Function TwOwnershipContext {
     $regFilePath = "C:\_temp\takeownership.reg"
     $regContent = @"
 Windows Registry Editor Version 5.00
@@ -240,7 +254,7 @@ Start-Process "regedit.exe" -ArgumentList "/s $regFilePath" -WindowStyle Hidden
 Remove-Item -Path $regFilePath -Force
 }
 
-Function Services1 {
+Function TwServices {
   Set-Service -Name 'AJRouter' -StartupType Disabled -ErrorAction Continue
   Set-Service -Name 'ALG' -StartupType Manual -ErrorAction Continue
   Set-Service -Name 'AppIDSvc' -StartupType Manual -ErrorAction Continue
@@ -549,7 +563,7 @@ Function Services1 {
   Set-Service -Name 'wudfsvc' -StartupType Manual -ErrorAction Continue
 }
 
-Function Performance1 {
+Function TwPerformance {
 	New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\nvlddmkm\FTS' -Name 'EnableGR535' -PropertyType DWord -Value 0 -Force;
 	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences' -Name 'DirectXUserGlobalSettings' -Value 'SwapEffectUpgradeEnable=1;VRROptimizeEnable=0;';
 	Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects' -Name 'VisualFXSetting' -Value 3;
@@ -570,7 +584,7 @@ Function Performance1 {
 	Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling' -Name 'PowerThrottlingOff' -Value 1;
 }
 
-Function Tasks1 {
+Function TwScheduledTasks {
   $scheduledTasks = @(
       "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser",
       "Microsoft\Windows\Application Experience\ProgramDataUpdater",
@@ -591,81 +605,20 @@ Function Tasks1 {
   }
 }
 
-Function SecurityUp1 {
-    $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
-    $AURegistryPath = "$WURegistryPath\AU"
-
-    if (-not (Test-Path $WURegistryPath)) {
-        New-Item -Path $WURegistryPath -Force | Out-Null
-    }
-    if (-not (Test-Path $AURegistryPath)) {
-        New-Item -Path $AURegistryPath -Force | Out-Null
-    }
-
-    Set-ItemProperty -Path $WURegistryPath -Name "DeferFeatureUpdates" -Value 1 -Force
-    Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdates" -Value 1 -Force
-    Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force
-    Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdatesPeriodInDays" -Value 0 -Force
-
-    Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 1 -Force
-    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force
-
-    $DriverPolicyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
-    if (-not (Test-Path $DriverPolicyPath)) {
-        New-Item -Path $DriverPolicyPath -Force | Out-Null
-    }
-    Set-ItemProperty -Path $DriverPolicyPath -Name "SearchOrderConfig" -Value 0 -Force
-
-    Start-Process -FilePath "C:\Windows\System32\schtasks.exe" -ArgumentList "/Delete /TN \"\Microsoft\Windows\WindowsUpdate\Automatic App Update\" /F" -NoNewWindow -Wait
-	
+Function TwRunAll {
+TwSwInstalls
+TwOneDrive
+TwWiFiSense
+TwAds
+TwDVR
+TwGameMode
+TwKBM
+TwMuchiPowerPlan
+TwOwnershipContext
+TwServices
+TwPerformance
+TwScheduledTasks
+MuchiDMB "All Tweaks Applied"
 }
 
-Function 1Debloat {
-	$SafeApps = "AAD.brokerplugin|accountscontrol|apprep.chxapp|assignedaccess|asynctext|bioenrollment|capturepicker|cloudexperience|contentdelivery|desktopappinstaller|ecapp|edge|extension|getstarted|immersivecontrolpanel|lockapp|net.native|oobenet|parentalcontrols|PPIProjection|search|sechealth|secureas|shellexperience|startmenuexperience|terminal|vclibs|xaml|XGpuEject"
-	If ($Xbox) {
-		$SafeApps = "$SafeApps|Xbox" 
-}
-	
-	If ($Allapps) {
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
-}
-}	Else {
-		$SafeApps = "$SafeApps|$GoodApps"
-		$RemoveApps = Get-AppxPackage -allusers | where-object {$_.name -notmatch $SafeApps}
-		$RemovePrApps = Get-AppxProvisionedPackage -online | where-object {$_.displayname -notmatch $SafeApps}
-			ForEach ($RemovedApp in $RemoveApps) {
-				Remove-AppxPackage -package $RemovedApp -erroraction silentlycontinue
-				
-}			ForEach ($RemovedPrApp in $RemovePrApps) {
-				Remove-AppxProvisionedPackage -online -packagename $RemovedPrApp.packagename -erroraction silentlycontinue
-				
-}
-}
-}
-
-Function 111RunAll {
-1SoftwareInstalls
-1Drive
-WiFiS1
-Ads1
-1DVR
-Game-Mode1
-KBM1
-MPP1
-Owner1
-Services1
-Performance1
-Tasks1
-SecurityUp1
-1Debloat
-
-}
-
-111RunAll
+TwRunAll
