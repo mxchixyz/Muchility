@@ -11,7 +11,7 @@ set-executionpolicy unrestricted
 
 
 $muchisite = "@ mxchi.xyz - "
-$muchiVer = "v2.62"
+$muchiVer = "v2.0.1"
 $muchititle = "Muchility " + $muchisite + $muchiVer
 
 
