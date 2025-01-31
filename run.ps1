@@ -4,14 +4,8 @@
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
 
-set-executionpolicy unrestricted
-
-
-# " > $null 2>&1"
-
-
 $muchisite = "@ mxchi.xyz - "
-$muchiVer = "v2.0.1"
+$muchiVer = "v2.70"
 $muchititle = "Muchility " + $muchisite + $muchiVer
 
 
@@ -64,14 +58,15 @@ Function MuchilityBackground {
 }
 
 
+
+
+
 # Muchility Main Window
 
 Function Muchility-Window {
-    # Load required assemblies
     Add-Type -AssemblyName System.Windows.Forms
     Add-Type -AssemblyName System.Drawing
 
-    # Define button parameters
     $buttonWidth = 120
     $buttonHeight = 40
     $paddingX = 20
@@ -79,32 +74,29 @@ Function Muchility-Window {
     $columns = 2
     $rows = 4
 
-    # Calculate window size based on buttons
     $formWidth = 305
-    $formHeight = 355
+    $formHeight = 415
 	
-    # Create a new form
     $form = New-Object System.Windows.Forms.Form
     $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
     $form.Icon = MuchilityIcon
     $form.BackgroundImage = MuchilityBackground
 	$form.Text = $muchititle
 
-    # Make the form fixed size (no resizing allowed)
     $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
     $form.MaximizeBox = $false
     $form.MinimizeBox = $false
     $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 
-    # Helper function to add buttons with pink color
     Function Add-Button {
         param (
             [string]$text,
             [int]$x,
             [int]$y,
-            [scriptblock]$function
+            [scriptblock]$function,
+            [string]$tooltipText
         )
-        # Create the button
+        
         $button = New-Object System.Windows.Forms.Button
         $button.Text = $text
         $button.Size = New-Object System.Drawing.Size($buttonWidth, $buttonHeight)
@@ -112,32 +104,32 @@ Function Muchility-Window {
         $button.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
         $button.FlatAppearance.BorderSize = 0  # Remove the border
 
-        # Set the button's background color to pink
         $button.BackColor = [System.Drawing.Color]::FromArgb(255, 109, 37, 134)  # Hot Pink
         $button.ForeColor = [System.Drawing.Color]::white  # Set text color to white
 
-        # Add click event
         $button.Add_Click($function)
 
-        # Add the button to the form
+        $tooltip = New-Object System.Windows.Forms.ToolTip
+        $tooltip.SetToolTip($button, $tooltipText)
+
         $form.Controls.Add($button)
     }
 
-    # Button definitions
     $muchiButtons = @(
-		@{ Name = "Create Restore Point"; Function = { Restore-Button } }, # Windows
-		@{ Name = "Apply Tweaks"; Function = { Apply-Tweaks-Button } }, # Tweak
-		@{ Name = "Activate Windows"; Function = { Activate-Win } }, # Windows
-        @{ Name = "Clear Temp"; Function = { Clear-Temp-Button } }, # Tweak
-		@{ Name = "Upgrade Windows"; Function = { Upgrade-Win } }, # Windows
-		@{ Name = "Repair System"; Function = { Repair-System-Button } }, # Tweak
-		@{ Name = "Windows Update"; Function = { Windows-Update-Button } }, # Windows
-		@{ Name = "Debloater"; Function = { Debloater-Button } }, # Tweak
-        @{ Name = "Update All Apps"; Function = { Update-Apps-Button } } # Tweak
-		@{ Name = "Discord"; Function = { Discord-Button } } # Tweak
+        @{ Name = "Create Restore Point"; Function = { Restore-Button } ; Tooltip = "Create " + '"Before Muchility" ' + "Restore Point" },
+        @{ Name = "Apply Tweaks"; Function = { Apply-Tweaks-Button } ; Tooltip = "Open Tweak Selection" },
+        @{ Name = "Activate Windows"; Function = { Activate-Win } ; Tooltip = "Activate Windows 10/11" },
+        @{ Name = "Clear Temp"; Function = { Clear-Temp-Button } ; Tooltip = "Clear Temporary Files" },
+        @{ Name = "Upgrade Windows"; Function = { Upgrade-Win } ; Tooltip = "Upgrade Windows 10/11 (Example = Home --> Pro)" },
+        @{ Name = "Repair System"; Function = { Repair-System-Button } ; Tooltip = "Repair System Files" },
+        @{ Name = "Windows Update"; Function = { Windows-Update-Button } ; Tooltip = "Configure Windows Update" },
+        @{ Name = "Debloater"; Function = { Debloater-Button } ; Tooltip = "Removes *MOST* Microsoft Bloatware Apps" },
+        @{ Name = "Update All Apps"; Function = { Update-Apps-Button } ; Tooltip = "Updates All Installed Apps" },
+        @{ Name = "Discord"; Function = { Discord-Button } ; Tooltip = "Discord Invite (Ignorance)" },
+		@{ Name = "Extra Tweaks/Apps"; Function = { Extra-Button } ; Tooltip = "Download Extra Tweaks Pack" },
+		@{ Name = "Source Code"; Function = { Source-Button } ; Tooltip = "Muchility Source Code" }
     )
 
-    # Add buttons dynamically
     for ($i = 0; $i -lt $muchiButtons.Count; $i++) {
         $col = $i % $columns
         $row = [math]::Floor($i / $columns)
@@ -145,10 +137,9 @@ Function Muchility-Window {
         $y = ($row * ($buttonHeight + $paddingY)) + $paddingY
 
         $button = $muchiButtons[$i]
-        Add-Button -text $button.Name -x $x -y $y -function $button.Function
+        Add-Button -text $button.Name -x $x -y $y -function $button.Function -tooltipText $button.Tooltip
     }
 
-    # Display the form
     [void]$form.ShowDialog()
 }
 
@@ -156,10 +147,8 @@ Function Muchility-Window {
 # Tweaks Window
 
 Function Tweaks-Window {
-    # Load required assembly
     Add-Type -AssemblyName System.Windows.Forms
 
-    # Create a new form
     $form = New-Object System.Windows.Forms.Form
     $form.Text = $muchititle
     $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
@@ -168,12 +157,10 @@ Function Tweaks-Window {
     $form.Icon = MuchilityIcon
     $form.BackgroundImage = MuchilityBackground
 
-    # Remove minimize and maximize buttons, make form non-resizable
     $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
     $form.MaximizeBox = $false
     $form.MinimizeBox = $false
 
-    # Define the tweak functions and their corresponding names
     $tweakButtons = @(
         @{ Name = "Apply All"; Function = { TwRunAll } },
         @{ Name = "Block Device Installers"; Function = { TwSwInstalls } },
@@ -182,29 +169,26 @@ Function Tweaks-Window {
         @{ Name = "Disable Windows Ads"; Function = { TwAds } },
         @{ Name = "DVR Tweaks"; Function = { TwDVR } },
         @{ Name = "Enable Game Mode"; Function = { TwGameMode } },
-        @{ Name = "KB + Mouse"; Function = { TwKBM } },
+        @{ Name = "Keyboard + Mouse Tweaks"; Function = { TwKBM } },
         @{ Name = "Muchi Power Plan"; Function = { TwMuchiPowerPlan } },
         @{ Name = "Optimize Services"; Function = { TwServices } },
         @{ Name = "Performance Tweaks"; Function = { TwPerformance } },
         @{ Name = "Scheduled Tasks"; Function = { TwScheduledTasks } },
-        @{ Name = "Take Ownership"; Function = { TwOwnershipContext } }
+        @{ Name = "Take Ownership (Context Menu)"; Function = { TwOwnershipContext } }
     )
 
-    # Create a ComboBox for selecting the tweak
     $comboBox = New-Object System.Windows.Forms.ComboBox
     $comboBox.Size = New-Object System.Drawing.Size(200, 30)
     $comboBox.Location = New-Object System.Drawing.Point(20, 20)
     $comboBox.DropDownStyle = [System.Windows.Forms.ComboBoxStyle]::DropDownList
-    $comboBox.Items.AddRange($tweakButtons.Name)  # Add tweak names to the comboBox
-    $comboBox.SelectedIndex = 0  # Default to the first item
+    $comboBox.Items.AddRange($tweakButtons.Name)
+    $comboBox.SelectedIndex = 0
 
-    # Style the ComboBox to match the pink theme
     $comboBox.BackColor = [System.Drawing.Color]::FromArgb(255, 109, 37, 134)
     $comboBox.ForeColor = [System.Drawing.Color]::White
     $comboBox.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
-    $comboBox.FlatAppearance.BorderSize = 0  # Remove the border
+    $comboBox.FlatAppearance.BorderSize = 0
 
-    # Create the "Apply Tweak" button
     $applyButton = New-Object System.Windows.Forms.Button
     $applyButton.Text = "Apply!"
     $applyButton.Size = New-Object System.Drawing.Size(120, 40)
@@ -214,7 +198,6 @@ Function Tweaks-Window {
     $applyButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
     $applyButton.FlatAppearance.BorderSize = 0
 
-    # Button click event to apply the selected tweak
     $applyButton.Add_Click({
         $selectedIndex = $comboBox.SelectedIndex
         if ($selectedIndex -ge 0) {
@@ -223,18 +206,14 @@ Function Tweaks-Window {
         }
     })
 
-    # Calculate form size based on the controls
     $formWidth = 250
     $formHeight = 150
 
-    # Resize the form accordingly
     $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
 
-    # Add ComboBox and Apply Button to the form
     $form.Controls.Add($comboBox)
     $form.Controls.Add($applyButton)
 
-    # Show the form
     [void]$form.ShowDialog()
 }
 
@@ -242,10 +221,8 @@ Function Tweaks-Window {
 # Windows Update Window
 
 Function Windows-Update-Window {
-    # Load required assembly
     Add-Type -AssemblyName System.Windows.Forms
 
-    # Define button parameters
     $buttonWidth = 120
     $buttonHeight = 40
     $paddingX = 20
@@ -253,24 +230,20 @@ Function Windows-Update-Window {
     $columns = 1
     $rows = 3
 
-    # Calculate window size based on buttons
     $formWidth = 165
     $formHeight = ($rows * ($buttonHeight + $paddingY)) + $paddingY + 40
 
-    # Create a new form
     $form = New-Object System.Windows.Forms.Form
     $form.Text = $muchititle
     $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
 	$form.Icon = MuchilityIcon
 	$form.BackgroundImage = MuchilityBackground
 
-    # Make the form fixed size (no resizing allowed)
     $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
     $form.MaximizeBox = $false
     $form.MinimizeBox = $false
     $form.StartPosition = [System.Windows.Forms.FormStartPosition]::CenterScreen
 
-    # Helper function to add buttons
     Function Add-Button {
         param (
             [string]$text,
@@ -291,14 +264,12 @@ Function Windows-Update-Window {
         $form.Controls.Add($button)
     }
 
-    # Button definitions
     $updateButtons = @(
         @{ Name = "Enable"; Function = { WinUp-Ena } },
         @{ Name = "Disable"; Function = { WinUp-Dis } },
         @{ Name = "Security Only"; Function = { WinUp-Sec } }
     )
 
-    # Add buttons dynamically
     for ($i = 0; $i -lt $updateButtons.Count; $i++) {
         $col = $i % $columns
         $row = [math]::Floor($i / $columns)
@@ -309,37 +280,34 @@ Function Windows-Update-Window {
         Add-Button -text $button.Name -x $x -y $y -function $button.Function
     }
 
-    # Display the form
     [void]$form.ShowDialog()
 }
+
+
+
 
 
 #Tweaks + RunAll
 
 Function TwSwInstalls {
-        # Create and set DenyDeviceIDs registry key
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Force | Out-Null
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Name "DenyDeviceIDs" -Value 1
 
-        # Create and set DeviceSetupManager registry key
         New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceSetup" -Force | Out-Null
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceSetup" -Name "DeviceSetupManager" -Value 0
 
-        # Create and set ExcludeWUDriversInQualityUpdate registry key
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force | Out-Null
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Value 1
 
-        # Create and set PreventDeviceMetadataFromNetwork registry key
         New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" -Force | Out-Null
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Value 1
 
-        # Create DeviceInstaller key if it does not exist, then set DisableCoInstallers value
         if (-not (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceInstaller")) {
             New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceInstaller" -Force | Out-Null
         }
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceInstaller" -Name "DisableCoInstallers" -Value 1
 
-        # Set SearchOrderConfig registry key
+        
         Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0
 }
 
@@ -495,23 +463,19 @@ Function TwMuchiPowerPlan {
     $destinationPath = "C:\_temp\Muchi.pow"
     $targetDir = Split-Path -Path $destinationPath
 
-    # Check if a power plan containing "Muchi" already exists
     $schemes = powercfg /l
     if ($schemes -match "Muchi") {
         MuchiDMB "Muchi Power Plan Already Exists"
         return
     }
 
-    # Create target directory if it doesn't exist
     if (!(Test-Path -Path $targetDir)) {
         New-Item -ItemType Directory -Path $targetDir -Force
     }
 
-    # Download and import the power plan
     Invoke-WebRequest -Uri $downloadUrl -OutFile $destinationPath
     powercfg -import $destinationPath
 
-    # Set the imported plan as active
     $schemes = powercfg /l
     $schemeGuid = $schemes | Select-String -Pattern "Muchi" | ForEach-Object { $_.ToString().Split()[3] }
     if ($schemeGuid) {
@@ -930,6 +894,9 @@ MuchiDMB "All Tweaks Applied"
 }
 
 
+
+
+
 # Upgrade & Activate Windows Functions
 
 Function Activate-Win {
@@ -941,10 +908,12 @@ Function Upgrade-Win {
 }
 
 
+
+
+
 # Functions
 
 Function FF-Repair {
-    # Run the CMD as Administrator and execute the repairs
     $cmdArguments = @"
     dism.exe /Online /Cleanup-Image /ScanHealth
     dism.exe /Online /Cleanup-Image /RestoreHealth
@@ -954,36 +923,32 @@ Function FF-Repair {
     chkdsk C: /F /R /X
 "@
     
-    # Launch the command in an elevated CMD window
     Start-Process "cmd.exe" -ArgumentList "/K $cmdArguments" -Verb RunAs
 }
 
 Function FF-Clean-Temp-Folders {
-    # Define the paths to the temp folders
     $windowsTemp = "C:\Windows\Temp"
     $appDataTemp = [System.Environment]::GetFolderPath('LocalApplicationData') + "\Temp"
     $customTemp1 = "C:\_temp"
+	$prefetchtemp
 
-    # Function to remove the folder itself, ignoring files
     function Remove-TempFolder($path) {
         if (Test-Path -Path $path) {
             Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
 	
-    # Clean C:\Windows\Temp
     Remove-TempFolder $windowsTemp
 	
-    # Clean %appdata%\Local\Temp
     Remove-TempFolder $appDataTemp
 	
-    # Clean C:\_temp
     Remove-TempFolder $customTemp1
+	
+	Remove-TempFolder $prefetchtemp
 	
 }
 
 Function FF-CheckNet {
-    # Try to ping a reliable host (Google's public DNS server in this example)
     $HostToPing = "8.8.8.8"
     $PingResult = Test-Connection -ComputerName $HostToPing -Count 1 -Quiet
 
@@ -991,6 +956,9 @@ Function FF-CheckNet {
         MuchiDMB "No Internet Will Lead To Errors!"
     }
 }
+
+
+
 
 
 # MUCHILITY BUTTONS
@@ -1062,6 +1030,34 @@ Function Discord-Button {
 	Start-Process "https://mxchi.xyz/discord"
 }
 
+# Extra Tweaks/Apps Button
+
+Function Extra-Button {
+    $url = "https://www.dropbox.com/scl/fi/1wze620bqd89qym43k26f/Extra-Tweaks-Apps.zip?rlkey=dtfqannhwi8f3rk315268zdjb&st=x5emj3es&dl=1"
+    $tempFile = [System.IO.Path]::Combine($env:TEMP, "Extra-Tweaks-Apps.zip")
+    $desktopPath = [System.IO.Path]::Combine($env:USERPROFILE, "Desktop")
+    $extractPath = [System.IO.Path]::Combine($desktopPath, "Extra Tweaks + Apps")
+
+    # Create the script as a string
+    $script = @"
+Invoke-WebRequest -Uri '$url' -OutFile '$tempFile'
+Expand-Archive -Path '$tempFile' -DestinationPath '$extractPath' -Force
+Remove-Item '$tempFile'
+"@
+
+    # Run the script in a new PowerShell window
+    Start-Process powershell -ArgumentList "-NoExit", "-Command", $script
+}
+
+# Source Code Button
+
+Function Source-Button {
+	Start-Process "https://raw.githubusercontent.com/Muchiiix/Muchility/refs/heads/main/run.ps1"
+}
+
+
+
+
 
 #Funtion For Dark Mode Message Boxes
 
@@ -1122,14 +1118,15 @@ Function MuchiDMB {
 }
 
 
+
+
+
 # Windows Update Buttons
 
 Function WinUp-Sec {
-    # Define registry paths for Windows Update configurations
     $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
     $AURegistryPath = "$WURegistryPath\AU"
 
-    # Ensure the registry keys exist
     if (-not (Test-Path $WURegistryPath)) {
         New-Item -Path $WURegistryPath -Force | Out-Null
     }
@@ -1137,33 +1134,27 @@ Function WinUp-Sec {
         New-Item -Path $AURegistryPath -Force | Out-Null
     }
 
-    # Disable automatic updates except for security updates
     Set-ItemProperty -Path $WURegistryPath -Name "DeferFeatureUpdates" -Value 1 -Force
     Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdates" -Value 1 -Force
-    Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force # Semi-Annual Channel (Targeted)
+    Set-ItemProperty -Path $WURegistryPath -Name "BranchReadinessLevel" -Value 10 -Force
     Set-ItemProperty -Path $WURegistryPath -Name "DeferQualityUpdatesPeriodInDays" -Value 0 -Force
 
-    # Configure AU settings for manual control
     Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 1 -Force
-    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force # Notify for download/install
+    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 2 -Force
 
-    # Disable driver updates via Windows Update
     $DriverPolicyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching"
     if (-not (Test-Path $DriverPolicyPath)) {
         New-Item -Path $DriverPolicyPath -Force | Out-Null
     }
     Set-ItemProperty -Path $DriverPolicyPath -Name "SearchOrderConfig" -Value 0 -Force
 
-    # Optimize Update Settings for Security Updates Only
     Start-Process -FilePath "C:\Windows\System32\schtasks.exe" -ArgumentList "/Delete /TN \"\Microsoft\Windows\WindowsUpdate\Automatic App Update\" /F" -NoNewWindow -Wait
 }
 
 Function WinUp-Dis {
-    # Disable Windows Update Services
     Stop-Service -Name wuauserv -Force
     Set-Service -Name wuauserv -StartupType Manual
 
-    # Disable all automatic updates via registry
     $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
     $AURegistryPath = "$WURegistryPath\AU"
 
@@ -1175,15 +1166,13 @@ Function WinUp-Dis {
     }
 
     Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 1 -Force
-    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 1 -Force # Never check for updates
+    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 1 -Force
 }
 
 Function WinUp-Ena {
-    # Enable Windows Update Services
     Start-Service -Name wuauserv
     Set-Service -Name wuauserv -StartupType Automatic
 
-    # Enable all automatic updates via registry
     $WURegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
     $AURegistryPath = "$WURegistryPath\AU"
 
@@ -1195,8 +1184,11 @@ Function WinUp-Ena {
     }
 
     Set-ItemProperty -Path $AURegistryPath -Name "NoAutoUpdate" -Value 0 -Force
-    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 4 -Force # Auto download and install updates
+    Set-ItemProperty -Path $AURegistryPath -Name "AUOptions" -Value 4 -Force
 }
+
+
+
 
 
 # " > $null 2>&1"
