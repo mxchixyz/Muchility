@@ -5,7 +5,7 @@ Function Check-Winget {
 
 Function Install-Winget {
     Write-Host "Winget missing, opening Microsoft Store for installation."
-    Start-Process "ms-windows-store://pdp/?productid=9NBLGGH42THS"  # Opens the App Installer page in the Microsoft Store
+    Start-Process "ms-windows-store://pdp/?productid=9NBLGGH4NNS1"  # Opens the App Installer page in the Microsoft Store
 }
 
 Function Update-AllPackages {
