@@ -1,27 +1,27 @@
-Function ChocoUpdateAll {
-    # Check if Chocolatey is installed
-    if (Get-Command choco -ErrorAction SilentlyContinue) {
-        Write-Host "Choco is updating all apps"
-        
-        # Enable global confirmation for silent updates
-        choco feature enable -n allowGlobalConfirmation
-        
-        # Update all installed packages with Chocolatey
-        choco upgrade all -force -y
-    } else {
-        Write-Host "Choco missing, Installing."
-        
-        # Install Chocolatey
-        Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; 
-        iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-        
-        Write-Host "Choco installed. Updating."
-        
-        # Enable global confirmation for silent updates
-        choco feature enable -n allowGlobalConfirmation
-        
-        # Update all installed packages with Chocolatey
-        choco upgrade all -force -y
-    }
+Function Check-Winget {
+    # Check if winget is installed
+    return Get-Command winget -ErrorAction SilentlyContinue
 }
-ChocoUpdateAll
+
+Function Install-Winget {
+    Write-Host "Winget missing, opening Microsoft Store for installation."
+    Start-Process "ms-windows-store://pdp/?productid=9NBLGGH42THS"  # Opens the App Installer page in the Microsoft Store
+}
+
+Function Update-AllPackages {
+    Write-Host "Updating all Winget packages..."
+    winget upgrade --all --silent --accept-source-agreements --accept-package-agreements
+}
+
+Function WingetUpdateAll {
+    # Check if Winget is installed
+    if (Check-Winget) {
+        Write-Host "Winget is updating all apps"
+    } else {
+        Install-Winget
+    }
+
+    Update-AllPackages
+}
+
+WingetUpdateAll
