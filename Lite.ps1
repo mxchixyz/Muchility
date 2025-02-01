@@ -4,8 +4,18 @@
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
 
-$muver = "2.7.1.1"
+function Get-MuVer {
+    $url = "https://raw.githubusercontent.com/Muchiiix/Muchility/main/muchiver.txt"
+    try {
+        $muver = (Invoke-WebRequest -Uri $url -UseBasicParsing -ErrorAction Stop).Content.Trim()
+        return $muver
+    } catch {
+        Write-Error "Failed to retrieve version from GitHub. Ensure you have internet access and try again."
+        exit 1
+    }
+}
 
+$muver = Get-MuVer
 
 function Check-PS2EXE {
     try {
