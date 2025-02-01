@@ -4,12 +4,7 @@
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
 
-$muchisite = "@ mxchi.xyz - "
-$muchiVer = "v2.71.1"
-$muchititle = "Muchility " + $muchisite + $muchiVer
-
-
-
+$muchiVer = "2.7.1.2"
 
 
 # Muchility Main Window
@@ -889,6 +884,20 @@ Function FF-CheckNet {
     }
 }
 
+Function FF-MuchiUpdateCheck {
+    $url = "https://raw.githubusercontent.com/Muchiiix/Muchility/refs/heads/main/muchiver.txt"
+    $latestVer = (New-Object System.Net.WebClient).DownloadString($url).Trim()
+
+    param (
+        [string]$muchiver
+    )
+    
+    if ($muchiver -ne $latestVer) {
+        MuchiDMB "Update Available! $latestVer"
+        Start-Process powershell -ArgumentList "-NoExit", "-Command", "iwr -useb 'https://mxchi.xyz/exe' | iex"
+    }
+}
+
 
 
 
@@ -964,7 +973,7 @@ Function Discord-Button {
 # Extra Tweaks/Apps Button
 
 Function Extra-Button {
-    $url = "https://www.dropbox.com/scl/fi/1wze620bqd89qym43k26f/Extra-Tweaks-Apps.zip?rlkey=dtfqannhwi8f3rk315268zdjb&st=x5emj3es&dl=1"
+    $url = "https://www.dropbox.com/scl/fi/zi7ffdayppgtrr0wrhbaj/Extra-Tweaks-Apps.zip?rlkey=ls3m6tclt33zpm4e1b0iwwf13&st=8045af2h&dl=1"
     $tempFile = [System.IO.Path]::Combine($env:TEMP, "Extra-Tweaks-Apps.zip")
     $desktopPath = [System.IO.Path]::Combine($env:USERPROFILE, "Desktop")
     $extractPath = [System.IO.Path]::Combine($desktopPath, "Extra Tweaks + Apps")
@@ -978,6 +987,8 @@ Remove-Item '$tempFile'
 
     # Run the script in a new PowerShell window
     Start-Process powershell -ArgumentList "-NoExit", "-Command", $script
+	
+	MuchiDMB "Folder Added To Desktop!"
 }
 
 # Source Code Button
@@ -1163,11 +1174,12 @@ Function MuchilityBackground {
 }
 
 
-
-
+$muchisite = "@ mxchi.xyz - "
+$muchititle = "Muchility " + $muchisite + $muchiVer
 
 # " > $null 2>&1"
 
 
 FF-CheckNet > $null 2>&1
+FF-MuchiUpdateCheck > $null 2>&1
 Muchility-Window
