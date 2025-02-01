@@ -8,33 +8,6 @@ set-executionpolicy unrestricted
 
 #Tweaks + RunAll
 
-Function TwSwInstalls {
-        # Create and set DenyDeviceIDs registry key
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Force | Out-Null
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" -Name "DenyDeviceIDs" -Value 1
-
-        # Create and set DeviceSetupManager registry key
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceSetup" -Force | Out-Null
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceSetup" -Name "DeviceSetupManager" -Value 0
-
-        # Create and set ExcludeWUDriversInQualityUpdate registry key
-        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Force | Out-Null
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Value 1
-
-        # Create and set PreventDeviceMetadataFromNetwork registry key
-        New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" -Force | Out-Null
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Value 1
-
-        # Create DeviceInstaller key if it does not exist, then set DisableCoInstallers value
-        if (-not (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceInstaller")) {
-            New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceInstaller" -Force | Out-Null
-        }
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceInstaller" -Name "DisableCoInstallers" -Value 1
-
-        # Set SearchOrderConfig registry key
-        Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Value 0
-}
-
 Function TwOneDrive {
 Get-ChildItem "$env:SystemDrive\Users" | ForEach-Object {
     if (Test-Path "$($_.FullName)\OneDrive") {
@@ -606,7 +579,6 @@ Function TwScheduledTasks {
 }
 
 Function TwRunAll {
-TwSwInstalls
 TwOneDrive
 TwWiFiSense
 TwAds
@@ -618,7 +590,6 @@ TwOwnershipContext
 TwServices
 TwPerformance
 TwScheduledTasks
-MuchiDMB "All Tweaks Applied"
 }
 
 TwRunAll
