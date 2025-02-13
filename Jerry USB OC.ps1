@@ -2,7 +2,7 @@ $GLOBAL_INTERVAL = 0x0
 
 $INDIVIDUAL_INTERVALS = @{}
 
-$RWE_PATH = "C:\Tweaks\Rw.exe"
+$RWE_PATH = "C:\Program Files\RwPortableX64V1.7\Win64\Portable\Rw.exe"
 
 function GetValueFromAddress($address) {
     
@@ -25,7 +25,7 @@ function main() {
     }
 
     if (-not (Test-Path $RWE_PATH -PathType Leaf)) {
-        Write-Host "error: invalid path"
+        Write-Host "error: invalid RWEverything path"
         return 1
     }
 
