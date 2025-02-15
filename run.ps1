@@ -69,7 +69,7 @@ Function Muchility-Window {
         @{ Name = "Repair System"; Function = { Repair-System-Button } ; Tooltip = "Repair System Files" },
         @{ Name = "Update All Apps"; Function = { Update-Apps-Button } ; Tooltip = "Updates All Installed Apps" },
         @{ Name = "Windows Update"; Function = { Windows-Update-Button } ; Tooltip = "Configure Windows Update" },
-        @{ Name = "Discord"; Function = { Discord-Button } ; Tooltip = "Discord Invite (Ignorance)" },
+        @{ Name = "USB Overclock"; Function = { TwJerryUSBoc-Final } ; Tooltip = "USB OC (JerryXOC)" },
         @{ Name = "Source Code"; Function = { Source-Button } ; Tooltip = "Muchility Source Code" }
     )
 
@@ -106,7 +106,7 @@ Function Tweaks-Window {
     $checkboxHeight = 25
 
     $formWidth = 230
-    $formHeight = 450
+    $formHeight = 420
 
     $form = New-Object System.Windows.Forms.Form
     $form.Size = New-Object System.Drawing.Size($formWidth, $formHeight)
@@ -150,13 +150,12 @@ Function Tweaks-Window {
     $checkboxes += Add-Checkbox -text "Performance Tweaks" -x 20 -y 250
     $checkboxes += Add-Checkbox -text "Scheduled Tasks" -x 20 -y 280
     $checkboxes += Add-Checkbox -text "Take Ownership" -x 20 -y 310
-	$checkboxes += Add-Checkbox -text "USB Overclock (JerryXOC)" -x 20 -y 340
 
     # Apply button
     $applyButton = New-Object System.Windows.Forms.Button
     $applyButton.Text = "Apply Selected"
     $applyButton.Size = New-Object System.Drawing.Size($checkboxWidth, 30)
-    $applyButton.Location = New-Object System.Drawing.Point(20, 370)
+    $applyButton.Location = New-Object System.Drawing.Point(20, 340)
     $applyButton.BackColor = [System.Drawing.Color]::FromArgb(60, 64, 67)
     $applyButton.ForeColor = [System.Drawing.Color]::White
     $applyButton.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
@@ -175,7 +174,6 @@ Function Tweaks-Window {
         if ($checkboxes[8].Checked) { TwPerformance }
         if ($checkboxes[9].Checked) { TwScheduledTasks }
         if ($checkboxes[10].Checked) { TwOwnershipContext }
-		if ($checkboxes[11].Checked) { TwJerryUSBoc-Final > $null 2>&1 }
     })
 
     $form.Controls.Add($applyButton)
@@ -894,6 +892,8 @@ Function Source-Button {
 }
 
 
+# JerryXOC USB Overclock Functions
+
 Function TwJerryUSBoc-pt1 {
 	reg add "HKLM\SYSTEM\CurrentControlSet\Control\CI\Config" /v "VulnerableDriverBlocklistEnable" /t REG_DWORD /d "0" /f
 	reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "EnableLUA" /t REG_DWORD /d "0" /f
@@ -915,10 +915,9 @@ Function TwJerryUSBoc-pt2 {
     Expand-Archive -Path $tempFile -DestinationPath $targetDir -Force
 }
 
-
 Function TwJerryUSBoc-pt3 {
     Start-Process powershell.exe -ArgumentList "-NoExit", "-Command", "iwr -useb 'https://raw.githubusercontent.com/mxchixyz/Muchility/refs/heads/main/Jerry%20USB%20OC.ps1' | iex"
-	Start-Sleep -Seconds 8
+	Start-Sleep -Seconds 5
 	MuchiDMB "USB OC Resets Every Restart!"
 }
 
@@ -927,7 +926,7 @@ Function TwJerryUSBoc-Final {
 	TwJerryUSBoc-pt1 > $null 2>&1
 	# 2 - Download and Extra RW zip to c:/tweaks/rw
 	TwJerryUSBoc-pt2 > $null 2>&1
-	Start-Sleep -Seconds 5
+	Start-Sleep -Seconds 3
 	# 3 - Run JerryUSBoc.PS1 in external PS
 	TwJerryUSBoc-pt3
 }
@@ -1097,7 +1096,7 @@ Function MuchiDMB {
 }
 
 
-$muchiVer = "2.81"
+$muchiVer = "2.82"
 $UpdateMSG = "Added = JerryXOC USB OC"
 $muchisite = "@ mxchi.xyz - "
 $muchititle = "Muchility " + $muchisite + $muchiVer
