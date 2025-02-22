@@ -10,7 +10,7 @@ Function Install-Winget {
 
 Function Update-AllPackages {
     Write-Host "Updating all Winget packages..."
-    winget upgrade --all --silent --accept-source-agreements --accept-package-agreements
+    winget upgrade --all --silent --accept-source-agreements --accept-package-agreements --include-unknown
 }
 
 Function WingetUpdateAll {
