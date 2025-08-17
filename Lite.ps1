@@ -36,7 +36,7 @@ function Install-PS2EXE {
 }
 
 function Compile-And-Run {
-    $TempDir = "C:\_temp"
+    $TempDir = "C:\windows\temp"
     if (!(Test-Path -Path $TempDir)) { New-Item -ItemType Directory -Path $TempDir -Force > $null 2>&1 }
 
     $RunScriptUrl = "https://raw.githubusercontent.com/Muchiiix/Muchility/main/run.ps1"
@@ -64,7 +64,6 @@ function Compile-And-Run {
         ps2exe $RunScriptPath $OutputExe -iconFile $IconPath `
             -Version $muver -Description "Muchility Created By Muchi @ mxchi.xyz" `
             -Copyright "Muchi @ mxchi.xyz" -Product "Muchility" `
-            -NoConsole > $null 2>&1
     } catch {
         Write-Error "Compilation failed. Ensure ps2exe is installed correctly."
         exit 1
@@ -95,3 +94,4 @@ if (-not (Check-PS2EXE)) { Install-PS2EXE }
 
 Close-Muchility > $null 2>&1
 Compile-And-Run > $null 2>&1
+
