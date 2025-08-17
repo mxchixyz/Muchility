@@ -5,7 +5,7 @@
 
 set-executionpolicy unrestricted
 
-$GoodApps = "calculator|store|windowsnotepad|chatgpt|minecraft|nvidia"
+$GoodApps = "calculator|store|windowsnotepad|chatgpt|minecraft|nvidia|Microsoft.Xbox.TCUI|XboxGameCallableUI|XboxGamingOverlay|XboxIdentityProvider|"
 
 Function RemoveApps {
     # SafeApps contains apps that shouldn't be removed, or just can't and cause errors
@@ -43,5 +43,6 @@ Function RemoveApps {
 # End Function RemoveApps
 
 RemoveApps
+
 
 
