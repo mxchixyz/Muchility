@@ -3,8 +3,6 @@
 #║ ║ ║ ║║*║*║║*╚═╣║*╔╗*║║*║"
 #╚═╩═╩═╝╚═══╝╚═══╝╚═╝╚═╝╚═╝"
 
-set-executionpolicy unrestricted
-
 $GoodApps = "calculator|store|windowsnotepad|chatgpt|minecraft|nvidia|Microsoft.Xbox.TCUI|XboxGameCallableUI|XboxGamingOverlay|XboxIdentityProvider|"
 
 Function RemoveApps {
@@ -43,6 +41,7 @@ Function RemoveApps {
 # End Function RemoveApps
 
 RemoveApps
+
 
 
 
