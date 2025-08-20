@@ -156,7 +156,7 @@ function Recommended-All {
     Start-Sleep -Seconds 2
     Clear-Host
 
-    Set-RecommendedServices *> $null
+    Set-ServiceStartup *> $null
     Write-Host "Services configured to recommended settings."
     Start-Sleep -Seconds 2
     Clear-Host
@@ -231,13 +231,10 @@ Function Show-SoftwareMenu {
     Clear-Host
 	Show-Header
     Write-Host "=== Software & Apps Menu ===" -ForegroundColor Cyan
-    Write-Host "1. Install Microsoft Store"
+    Write-Host "1. Install Microsoft Store (If Missing)"
     Write-Host "2. Uninstall One Drive"
     Write-Host "3. Disable Windows App Annoyances"
-	Write-Host "4. Muchi's Debloat " -NoNewline
-	Write-Host "(Aggressive)" -BackgroundColor DarkRed -ForegroundColor Black
-	Write-Host "5. Memory's Debloat " -NoNewline
-	Write-Host "(Less Aggressive)" -BackgroundColor Yellow -ForegroundColor Black
+	Write-Host "4. Muchi's Debloat "
     Write-Host "0. Back to Main Menu"
     
 	Write-Host ""
@@ -248,7 +245,6 @@ Function Show-SoftwareMenu {
         "3" { Set-AppsRegistry } 
 		"4" { Write-Host "Muchi's Debloater started in background." -ForegroundColor Yellow
 		Start-Job -ScriptBlock { Muchi-Debloater } | Out-Null}
-		"5" { Remove-Apps }
         "0" { Show-MuchilityMainMenu }
         default { Write-Host "Selected: $choice"; Show-SoftwareMenu }
     }
@@ -374,37 +370,6 @@ Function Muchi-Debloater {
 	Start-Sleep -Seconds 2
 }
 
-#Memory's Debloater
-function Remove-Apps {
-    Show-Header
-    Write-Host "Are You Sure You Want to Remove ALL Windows Apps? (Y/N)" -ForegroundColor Black -Backgroundcolor Yellow
-    Write-Host "Includes: OneDrive, Teams, Outlook for Windows and more . . ." -ForegroundColor Black -Backgroundcolor Yellow
-    Write-Host "(CAUTION! Can't be Undone!)" -BackgroundColor Red
-    $confirmation = Read-Host "Enter your choice"
-
-    if ($confirmation -eq 'Y' -or $confirmation -eq 'y') {
-        Show-Header
-        Write-Host "Removing Pre-installed Apps and Features. Please wait . . ."
-        # Bloatware Apps
-        Get-AppxPackage -AllUsers |
-        Where-Object { $appxPackages -contains $_.Name } |
-        Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue | Out-Null
-        # Legacy Windows Features & Apps
-        Get-WindowsCapability -Online |
-        Where-Object { $capabilities -contains ($_.Name -split '~')[0] } |
-        Remove-WindowsCapability -Online -ErrorAction SilentlyContinue | Out-Null
-        # Calls specified functions
-        Show-Header
-        Set-AppsRegistry
-        Uninstall-OneDrive
-        Show-Header
-        Disable-Recall
-        Show-Header
-        Write-Host "Windows has been debloated!" -ForegroundColor Green
-	
-	Start-Sleep -Seconds 2
-    }
-}
 
 
 
@@ -1727,3 +1692,4 @@ Show-MuchilityMainMenu
 while ($script:loop) {
     Show-MuchilityMainMenu
 }
+
